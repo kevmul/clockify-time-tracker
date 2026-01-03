@@ -1,5 +1,8 @@
 # Clockify Time Tracker CLI
 
+> [!WARNING]
+> This is a project I am using to LEARN GO. I am in no-way a GO expert. This was built with the help of AI as a learning tool.
+
 A beautiful, interactive command-line tool for logging time entries to Clockify.
 
 ## Features
