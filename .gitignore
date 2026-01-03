@@ -1,0 +1,29 @@
+# Environment variables
+.env
+
+# Binaries
+clockify-tracker
+clockify-tracker-*
+*.exe
+
+# Go build artifacts
+*.o
+*.a
+*.so
+
+# Go test files
+*.test
+*.out
+
+# Dependency directories
+vendor/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
