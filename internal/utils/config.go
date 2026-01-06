@@ -19,7 +19,9 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	// Load .env file - ignore error if file doesn't exist (e.g., in production)
 	// The underscore _ means we're intentionally ignoring the return value
-	_ = godotenv.Load()
+	homedir, _ := os.UserHomeDir()
+	_ = godotenv.Load("./.env")                                   // try local .env after. Will not override.
+	_ = godotenv.Load(homedir + "/.config/clockify-tracker/.env") // Load config env first
 
 	// Get the API key from environment
 	apiKey := os.Getenv("CLOCKIFY_API_KEY")
