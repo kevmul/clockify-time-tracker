@@ -29,6 +29,7 @@ type model struct {
 	date          time.Time           // Selected date for time entry
 	timeRange     textinput.Model     // Text input for time range (e.g., "9a - 5p")
 	taskName      textinput.Model     // Text input for task description
+	projectSearch textinput.Model     // Text input for project search
 	selectedProj  api.Project         // The project user selected
 
 	// API credentials and IDs
@@ -57,14 +58,20 @@ func New(config *utils.Config) model {
 	taskInput.CharLimit = 200                 // Clockify's description limit
 	taskInput.Width = 50
 
+	// Create and configure the project search input
+	searchInput := textinput.New()
+	searchInput.Placeholder = "Search projects..."
+	searchInput.Width = 50
+
 	// Return a new model with initial state
 	return model{
-		step:      stepDateSelect,            // Start at date selection
-		date:      time.Now(),                // Default to today
-		timeRange: ti,
-		taskName:  taskInput,
-		cursor:    0,                         // Start at first item in lists
-		apiKey:    config.APIKey,             // Store API key from config
+		step:          stepDateSelect,            // Start at date selection
+		date:          time.Now(),                // Default to today
+		timeRange:     ti,
+		taskName:      taskInput,
+		projectSearch: searchInput,
+		cursor:        0,                         // Start at first item in lists
+		apiKey:        config.APIKey,             // Store API key from config
 	}
 }
 

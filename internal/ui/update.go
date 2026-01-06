@@ -26,12 +26,16 @@ type submitSuccessMsg struct{}  // Empty struct signals success
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Handle text input FIRST before checking message types
 	// This ensures text inputs get all key events
-	if m.step == stepTimeInput || m.step == stepTaskInput {
+	if m.step == stepTimeInput || m.step == stepTaskInput || (m.step == stepProjectSelect && m.projectSearch.Focused()) {
 		var cmd tea.Cmd
 		if m.step == stepTimeInput {
 			m.timeRange, cmd = m.timeRange.Update(msg)
 		} else if m.step == stepTaskInput {
 			m.taskName, cmd = m.taskName.Update(msg)
+		} else if m.step == stepProjectSelect && m.projectSearch.Focused() {
+			m.projectSearch, cmd = m.projectSearch.Update(msg)
+			// Reset cursor when search changes
+			m.cursor = 0
 		}
 		
 		// Still check for special keys like Enter and quit keys
@@ -41,6 +45,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			case "enter":
 				return m.handleEnter()
+			case "esc":
+				if m.step == stepProjectSelect && m.projectSearch.Focused() {
+					m.projectSearch.Blur()
+					m.projectSearch.SetValue("")
+					m.cursor = 0
+				}
 			}
 		}
 		
@@ -103,14 +113,27 @@ func (m model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	// Up arrow or 'k' (vim style) - move cursor up in lists
 	case "up", "k":
-		if m.step == stepProjectSelect && m.cursor > 0 {
-			m.cursor--
+		if m.step == stepProjectSelect && !m.projectSearch.Focused() && m.cursor > 0 {
+			filteredProjects := m.filterProjects()
+			if m.cursor < len(filteredProjects) {
+				m.cursor--
+			}
 		}
 
 	// Down arrow or 'j' (vim style) - move cursor down in lists
 	case "down", "j":
-		if m.step == stepProjectSelect && m.cursor < len(m.projects)-1 {
-			m.cursor++
+		if m.step == stepProjectSelect && !m.projectSearch.Focused() {
+			filteredProjects := m.filterProjects()
+			if m.cursor < len(filteredProjects)-1 {
+				m.cursor++
+			}
+		}
+
+	// Forward slash - focus search
+	case "/":
+		if m.step == stepProjectSelect {
+			m.projectSearch.Focus()
+			return m, textinput.Blink
 		}
 
 	// Left arrow or 'h' (vim style) - previous day
@@ -145,10 +168,17 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 
 	// Project selected - move to time input
 	case stepProjectSelect:
-		m.selectedProj = m.projects[m.cursor] // Save selected project
-		m.step = stepTimeInput
-		m.timeRange.Focus() // Focus the time input field
-		return m, textinput.Blink // Start cursor blinking in text input
+		if m.projectSearch.Focused() {
+			m.projectSearch.Blur()
+			return m, nil
+		}
+		filteredProjects := m.filterProjects()
+		if len(filteredProjects) > 0 && m.cursor < len(filteredProjects) {
+			m.selectedProj = filteredProjects[m.cursor] // Save selected project
+			m.step = stepTimeInput
+			m.timeRange.Focus() // Focus the time input field
+			return m, textinput.Blink // Start cursor blinking in text input
+		}
 
 	// Time entered - move to task input
 	case stepTimeInput:

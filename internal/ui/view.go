@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"clockify-time-tracker/internal/api"
 	"fmt"
 	"strings"
 )
@@ -56,15 +57,29 @@ func (m model) renderProjectSelect() string {
 		return "Loading projects...\n"
 	}
 
-	s := "Select a project:\n\n"
+	var sb strings.Builder
+
+	sb.WriteString("Select a project:\n\n")
+
+	// Show search input
+	sb.WriteString("🔍 " + m.projectSearch.View() + "\n\n")
+
+	// Filter projects based on search
+	filteredProjects := m.filterProjects()
+
+	if len(filteredProjects) == 0 {
+		sb.WriteString("  No projects match your search.\n\n")
+		sb.WriteString("  [/] Search  [Esc] Clear search  [q] Quit\n")
+		return sb.String()
+	}
 
 	// Calculate visible range for scrolling
 	const visibleItems = 10 // Show 10 items at a time
 	start := 0
-	end := len(m.projects)
+	end := len(filteredProjects)
 
 	// If we have more projects than can fit, show a window around cursor
-	if len(m.projects) > visibleItems {
+	if len(filteredProjects) > visibleItems {
 		// Center the cursor in the window
 		start = m.cursor - visibleItems/2
 		end = start + visibleItems
@@ -76,8 +91,8 @@ func (m model) renderProjectSelect() string {
 		}
 
 		// Adjust if we're near the end
-		if end > len(m.projects) {
-			end = len(m.projects)
+		if end > len(filteredProjects) {
+			end = len(filteredProjects)
 			start = end - visibleItems
 			if start < 0 {
 				start = 0
@@ -86,35 +101,52 @@ func (m model) renderProjectSelect() string {
 
 		// Show indicator if there are items above
 		if start > 0 {
-			s += fmt.Sprintf("  ↑ %d more above...\n", start)
+			sb.WriteString(fmt.Sprintf("  ↑ %d more above...\n", start))
 		}
 	}
-	
+
 	// Show visible projects
 	for i := start; i < end; i++ {
-		proj := m.projects[i]
+		proj := filteredProjects[i]
 
 		// Format project name with client if available
-		displayName := proj.Name 
+		displayName := proj.Name
 		if proj.ClientName != "" {
 			displayName = fmt.Sprintf("%s (%s)", proj.Name, proj.ClientName)
 		}
 
 		if m.cursor == i {
 			// This is the selected item -= highlight it
-			s += selectedStyle.Render(fmt.Sprintf("❯ %s", displayName))
+			sb.WriteString(selectedStyle.Render(fmt.Sprintf("❯ %s", displayName)) + "\n")
 		} else {
 			// Regular rendering for unselected items
-			s += fmt.Sprintf("  %s\n", displayName)
+			sb.WriteString(fmt.Sprintf("  %s\n", displayName))
 		}
 	}
+
 	// Show indicator if there are items below
-	if len(m.projects) > visibleItems && end < len(m.projects) {
-		s += fmt.Sprintf("  ↓ %d more below...\n", len(m.projects)-end)
+	if len(filteredProjects) > visibleItems && end < len(filteredProjects) {
+		sb.WriteString(fmt.Sprintf("  ↓ %d more below...\n", len(filteredProjects)-end))
 	}
-	
-	s += "\n  [↑/↓] Navigate  [Enter] Select  [q] Quit\n"
-	return s
+
+	sb.WriteString("\n  [↑/↓] Navigate  [Enter] Select  [/] Search  [Esc] Clear  [q] Quit\n")
+	return sb.String()
+}
+
+// filterProjects returns projects that match the current search query
+func (m model) filterProjects() []api.Project {
+	query := strings.ToLower(strings.TrimSpace(m.projectSearch.Value()))
+	if query == "" {
+		return m.projects
+	}
+
+	var filtered []api.Project
+	for _, proj := range m.projects {
+		if strings.Contains(strings.ToLower(proj.Name), query) {
+			filtered = append(filtered, proj)
+		}
+	}
+	return filtered
 }
 
 // renderTimeInput shows the time range input field
@@ -134,7 +166,7 @@ func (m model) renderTaskInput() string {
 	s += fmt.Sprintf("Time: %s\n\n", m.timeRange.Value())
 	s += "Enter task description:\n\n"
 	s += m.taskName.View() // Render the text input
-	
+
 	// Show recent tasks as suggestions if available
 	if len(m.tasks) > 0 {
 		// Show up to 3 recent tasks
@@ -142,7 +174,7 @@ func (m model) renderTaskInput() string {
 		recentTasks := m.tasks[:recentCount]
 		s += "\n\n  Recent tasks: " + strings.Join(recentTasks, ", ")
 	}
-	
+
 	s += "\n\n  [Enter] Continue  [q] Quit\n"
 	return s
 }
