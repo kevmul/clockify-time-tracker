@@ -46,7 +46,7 @@ func (m model) View() string {
 func (m model) renderDateSelect() string {
 	s := "Select date (use ←/→ to change, Enter to confirm):\n\n"
 	s += fmt.Sprintf("  📅 %s\n\n", m.date.Format("Monday, January 2, 2006"))
-	s += "  [Enter] Confirm  [←/→] Change day  [q] Quit\n"
+	s += fmt.Sprintf("  %s %s %s %s\n", EnterPrompt, VerticalArrowPrompt, TodayPrompt, QuitPrompt)
 	return s
 }
 
@@ -69,7 +69,7 @@ func (m model) renderProjectSelect() string {
 
 	if len(filteredProjects) == 0 {
 		sb.WriteString("  No projects match your search.\n\n")
-		sb.WriteString("  [/] Search  [Esc] Clear search  [q] Quit\n")
+		sb.WriteString(fmt.Sprintf("  %s %s %s", SearchPrompt, ClearPrompt, QuitPrompt))
 		return sb.String()
 	}
 
@@ -129,7 +129,7 @@ func (m model) renderProjectSelect() string {
 		sb.WriteString(fmt.Sprintf("  ↓ %d more below...\n", len(filteredProjects)-end))
 	}
 
-	sb.WriteString("\n  [↑/↓] Navigate  [Enter] Select  [/] Search  [Esc] Clear  [q] Quit\n")
+	sb.WriteString(fmt.Sprintf("\n  %s %s %s %s %s", ArrowPrompt, EnterPrompt, SearchPrompt, ClearPrompt, QuitPrompt))
 	return sb.String()
 }
 
@@ -155,7 +155,7 @@ func (m model) renderTimeInput() string {
 	s += fmt.Sprintf("Date: %s\n\n", m.date.Format("Jan 2, 2006"))
 	s += "Enter time range (e.g., 9a - 5p):\n\n"
 	s += m.timeRange.View() // Render the text input
-	s += "\n\n  [Enter] Continue  [q] Quit\n"
+	s += fmt.Sprintf("\n\n  %s %s", EnterPrompt, QuitPrompt)
 	return s
 }
 
@@ -175,7 +175,7 @@ func (m model) renderTaskInput() string {
 		s += "\n\n  Recent tasks: " + strings.Join(recentTasks, ", ")
 	}
 
-	s += "\n\n  [Enter] Continue  [q] Quit\n"
+	s += fmt.Sprintf("\n\n  %s %s", EnterPrompt, QuitPrompt)
 	return s
 }
 
@@ -186,7 +186,7 @@ func (m model) renderConfirm() string {
 	s += fmt.Sprintf("  Date: %s\n", m.date.Format("Jan 2, 2006"))
 	s += fmt.Sprintf("  Time: %s\n", m.timeRange.Value())
 	s += fmt.Sprintf("  Task: %s\n\n", m.taskName.Value())
-	s += "  [Enter] Submit  [q] Cancel\n"
+	s += fmt.Sprintf("  %s %s", EnterPrompt, QuitPrompt)
 	return s
 }
 

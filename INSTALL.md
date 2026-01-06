@@ -91,6 +91,13 @@ Just type from anywhere:
 clockify-tracker
 ```
 
+Or you can create an alias in your `.bashrc` or `.zshrc` file.
+
+```bash
+# tt short for Time Tracker. You can change this to be anything you want. :)
+alias tt="clockify-tracker"
+```
+
 ## Troubleshooting
 
 ### "command not found: clockify-tracker"

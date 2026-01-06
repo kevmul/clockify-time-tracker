@@ -4,6 +4,7 @@ package ui
 
 import (
 	"clockify-time-tracker/internal/api"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,13 +13,13 @@ import (
 // Message types that can be sent to Update()
 // These are custom types that wrap the actual data
 type projectsMsg []api.Project // List of projects from API
-type tasksMsg []string          // List of task descriptions
-type userInfoMsg struct {       // User info from API
+type tasksMsg []string         // List of task descriptions
+type userInfoMsg struct {      // User info from API
 	workspaceID string
 	userID      string
 }
-type errMsg error               // Error that occurred
-type submitSuccessMsg struct{}  // Empty struct signals success
+type errMsg error              // Error that occurred
+type submitSuccessMsg struct{} // Empty struct signals success
 
 // Update is called whenever a message is received
 // It's the only place where we modify the model
@@ -37,12 +38,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Reset cursor when search changes
 			m.cursor = 0
 		}
-		
+
 		// Still check for special keys like Enter and quit keys
 		if keyMsg, ok := msg.(tea.KeyMsg); ok {
 			switch keyMsg.String() {
-			case "ctrl+c", "q":
-				return m, tea.Quit
+			// case "ctrl+c", "q":
+			// return m, tea.Quit
 			case "enter":
 				return m.handleEnter()
 			case "esc":
@@ -53,13 +54,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		}
-		
+
 		return m, cmd
 	}
-	
+
 	// Check what type of message we received
 	switch msg := msg.(type) {
-	
+
 	// Keyboard input from the user
 	case tea.KeyMsg:
 		return m.handleKeyPress(msg)
@@ -106,10 +107,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // handleKeyPress processes all keyboard input
 func (m model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
-	
+
 	// Quit keys - always available
-	case "ctrl+c", "q":
+	case "ctrl+c":
 		return m, tea.Quit
+
+	// Quit keys - always available unless in search
+	case "q":
+		if m.step == stepProjectSelect && m.projectSearch.Focused() {
+			return m, nil
+		}
+		return m, tea.Quit
+
+	case "t":
+		if m.step == stepDateSelect {
+			m.date = time.Now() // Default to today
+		}
 
 	// Up arrow or 'k' (vim style) - move cursor up in lists
 	case "up", "k":
@@ -159,7 +172,7 @@ func (m model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 // handleEnter processes the Enter key - advances to next step
 func (m model) handleEnter() (tea.Model, tea.Cmd) {
 	switch m.step {
-	
+
 	// Date selected - move to project selection
 	case stepDateSelect:
 		m.step = stepProjectSelect
@@ -176,7 +189,7 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 		if len(filteredProjects) > 0 && m.cursor < len(filteredProjects) {
 			m.selectedProj = filteredProjects[m.cursor] // Save selected project
 			m.step = stepTimeInput
-			m.timeRange.Focus() // Focus the time input field
+			m.timeRange.Focus()       // Focus the time input field
 			return m, textinput.Blink // Start cursor blinking in text input
 		}
 
