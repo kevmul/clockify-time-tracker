@@ -1,12 +1,11 @@
 // internal/ui/commands.go
 // Wraps API calls into Bubble Tea commands
 // Commands are functions that return messages - they bridge the API and UI layers
-package maincontent
+package timeentry
 
 import (
-	"time"
-
 	"clockify-time-tracker/internal/api"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

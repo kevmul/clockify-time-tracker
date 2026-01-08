@@ -1,6 +1,10 @@
 package sidebar
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"clockify-time-tracker/internal/ui/messages"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 type Model struct {
 	items       []string
@@ -38,6 +42,14 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				// Scroll viewport if needed
 				if m.cursor >= m.viewportTop+m.height {
 					m.viewportTop = m.cursor - m.height + 1
+				}
+			}
+		case "enter":
+			// Send a message when something is selected
+			return m, func() tea.Msg {
+				return messages.NavigationMsg{
+					Item:  m.SelectedItem(),
+					Index: m.SelectedIndex(),
 				}
 			}
 		}

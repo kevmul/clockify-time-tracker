@@ -1,11 +1,10 @@
-// Defines the Bubble Tea model - the core application state
-package maincontent
+package timeentry
 
 import (
-	"time"
-
 	"clockify-time-tracker/internal/api"
+	"clockify-time-tracker/internal/ui/messages"
 	"clockify-time-tracker/internal/utils"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -81,4 +80,10 @@ func New(config *utils.Config) Model {
 func (m Model) Init() tea.Cmd {
 	// Fetch user info (workspace ID and user ID) as our first action
 	return fetchUserInfo(m.apiKey)
+}
+
+func (m Model) SetView(item messages.NavigationMsg) Model {
+	m.step = item.Index
+
+	return m
 }

@@ -1,14 +1,12 @@
 // Renders the styles.based on current Model state
 // This is called every time the state changes
-package maincontent
+package timeentry
 
 import (
 	"clockify-time-tracker/internal/api"
 	"clockify-time-tracker/internal/ui/styles"
 	"fmt"
 	"strings"
-
-	"github.com/charmbracelet/lipgloss"
 )
 
 // View returns a string representation of the UI
@@ -42,12 +40,8 @@ func (m Model) View() string {
 		s += m.renderConfirm()
 	}
 
-	mainContentStyle := lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder()).
-		BorderForeground(styles.ColorBorder).
-		Padding(1, 2)
-
-	return mainContentStyle.Render(s)
+	return s
+	// return mainContentStyle.Render(s)
 }
 
 // renderDateSelect shows the date selection screen
@@ -196,13 +190,4 @@ func (m Model) renderConfirm() string {
 	s += fmt.Sprintf("  Task: %s\n\n", m.taskName.Value())
 	s += fmt.Sprintf("  %s %s", EnterPrompt, QuitPrompt)
 	return s
-}
-
-// min returns the smaller of two integers
-// Helper function used for limiting the number of recent tasks shown
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

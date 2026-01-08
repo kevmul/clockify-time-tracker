@@ -1,4 +1,4 @@
-package maincontent
+package timeentry
 
 const (
 	ArrowPrompt         = "[↑/↓ | j/k] Navigate"

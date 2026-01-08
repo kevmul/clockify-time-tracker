@@ -1,6 +1,6 @@
 // Handles all state updates in response to messages
 // This is the heart of the Bubble Tea architecture
-package maincontent
+package timeentry
 
 import (
 	"clockify-time-tracker/internal/api"
