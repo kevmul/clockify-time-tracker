@@ -8,4 +8,5 @@ type ErrMsg = types.ErrMsg
 type ProjectsMsg = types.ProjectsMsg
 type TasksMsg = types.TasksMsg
 type UserInfoMsg = types.UserInfoMsg
+type SetLoadingMsg = types.SetLoadingMsg
 type SubmitSuccessMsg = types.SubmitSuccessMsg

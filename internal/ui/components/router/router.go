@@ -62,9 +62,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	// Route UI messages to the active component
 	switch m.currentView {
 	case "Time Entry":
-		timeEntryModel, cmd := m.timeEntry.Update(msg)
-		m.timeEntry = timeEntryModel.(timeentry.Model)
-
+		m.timeEntry, cmd = m.timeEntry.Update(msg)
 		return m, cmd
 	}
 
@@ -72,6 +70,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) initCurrentView() tea.Cmd {
+
 	switch m.currentView {
 	case "Time Entry":
 		return m.timeEntry.Init()

@@ -1,32 +1,7 @@
-2026/01/09 14:38:18.174898 Main app received message type: tea.WindowSizeMsg
-2026/01/09 14:38:18.179837 Sidebar received message type: tea.WindowSizeMsg
-2026/01/09 14:38:19.175979 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:19.180890 Sidebar received message type: tea.KeyMsg
-2026/01/09 14:38:19.184782 Sidebar received key: j
-2026/01/09 14:38:20.394218 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:20.399070 Sidebar received message type: tea.KeyMsg
-2026/01/09 14:38:20.401797 Sidebar received key: enter
-2026/01/09 14:38:20.404860 Sidebar Enter pressed! Selected item: Time Entry
-2026/01/09 14:38:20.410242 Creating NavigationMsg
-2026/01/09 14:38:20.414866 Main app received message type: types.NavigationMsg
-2026/01/09 14:38:20.418790 Main app handling NavigationMsg: Time Entry
-2026/01/09 14:38:20.422067 Router received NavigationMsg: Time Entry
-2026/01/09 14:38:20.425862 Router calling initCurrentView() for: Time Entry
-2026/01/09 14:38:20.429873 initCurrentView called for: Time Entry
-2026/01/09 14:38:20.436006 Calling timeEntry.Init()
-2026/01/09 14:38:20.437789 timeEntry Init() called
-2026/01/09 14:38:20.444955 Router initCurrentView() returned command: true
-2026/01/09 14:38:20.447940 fetchUserInfo called with apiKey: MGQ1NTMyNz...
-2026/01/09 14:38:20.667726 fetchUserInfo success - WorkspaceID: 5ea82f807468d5567e632fa3, UserID: 61d320d958c0fc1839dc2f9c
-2026/01/09 14:38:20.673687 Main app received message type: types.UserInfoMsg
-2026/01/09 14:38:20.860792 Main app received message type: types.TasksMsg
-2026/01/09 14:38:20.872826 Main app received message type: types.ProjectsMsg
-2026/01/09 14:38:22.057591 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:22.958426 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:23.297026 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:23.857794 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:24.103781 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:24.779502 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:24.903303 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:25.039008 Main app received message type: tea.KeyMsg
-2026/01/09 14:38:25.593837 Main app received message type: tea.KeyMsg
+2026/01/09 16:11:36.830441 Loading %!s(bool=false)
+2026/01/09 16:11:39.681385 Loading %!s(bool=false)
+2026/01/09 16:11:39.690266 Loading %!s(bool=true)
+2026/01/09 16:11:39.883564 Loading %!s(bool=false)
+2026/01/09 16:11:39.897210 Loading %!s(bool=false)
+2026/01/09 16:12:41.940191 Loading %!s(bool=false)
+2026/01/09 16:12:41.946265 Loading %!s(bool=false)

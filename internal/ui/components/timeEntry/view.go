@@ -55,9 +55,8 @@ func (m Model) renderDateSelect() string {
 // renderProjectSelect shows the project selection list
 func (m Model) renderProjectSelect() string {
 	// If no projects loaded yet, show loading message
-	if len(m.projects) == 0 {
+	if m.loading {
 		str := fmt.Sprintf("%s Loading...", m.spinner.View())
-		// return "Loading projects...\n"
 		return str
 	}
 

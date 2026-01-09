@@ -39,3 +39,5 @@ type UserInfoMsg struct {
 	UserID      string
 }
 type SubmitSuccessMsg struct{}
+
+type SetLoadingMsg struct{}

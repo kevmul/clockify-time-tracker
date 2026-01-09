@@ -10,18 +10,23 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// Message types that can be sent to Update()
-// These are custom types that wrap the actual data
-
 // Update is called whenever a message is received
 // It's the only place where we modify the Model
 // Returns the updated Model and any commands to run
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+
+	var cmds []tea.Cmd
+	var cmd tea.Cmd
+
+	if m.loading {
+		m.spinner, cmd = m.spinner.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	// Handle text input FIRST before checking message types
 	// This ensures text inputs get all key events
 	if m.step == stepTimeInput || m.step == stepTaskInput || (m.step == stepProjectSelect && m.projectSearch.Focused()) {
-		var cmd tea.Cmd
+
 		if m.step == stepTimeInput {
 			m.timeRange, cmd = m.timeRange.Update(msg)
 		} else if m.step == stepTaskInput {
@@ -31,6 +36,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Reset cursor when search changes
 			m.cursor = 0
 		}
+
+		cmds = append(cmds, cmd)
 
 		// Still check for special keys like Enter and quit keys
 		if keyMsg, ok := msg.(tea.KeyMsg); ok {
@@ -48,17 +55,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		return m, cmd
+		return m, tea.Batch(cmds...)
 	}
 
 	// Check what type of message we received
 	switch msg := msg.(type) {
-
-	// Spinner tick messages
-	// case spinner.TickMsg:
-	// 	var cmd tea.Cmd
-	// 	m.spinner, cmd = m.spinner.Update(msg)
-	// 	return m, cmd
 
 	// Keyboard input from the user
 	case tea.KeyMsg:
@@ -69,6 +70,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.workspaceID = msg.WorkspaceID
 		m.userID = msg.UserID
 		// Now fetch projects and tasks in parallel using tea.Batch
+		return m, func() tea.Msg {
+			return messages.SetLoadingMsg{}
+		}
+
+		// Start loading the data
+	case messages.SetLoadingMsg:
+		m.loading = true
 		return m, tea.Batch(
 			fetchProjects(m.apiKey, m.workspaceID),
 			fetchTasks(m.apiKey, m.workspaceID, m.userID),
@@ -76,6 +84,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Projects were fetched successfully
 	case messages.ProjectsMsg:
+		m.loading = false
 		m.projects = msg
 		return m, nil
 
@@ -100,12 +109,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	default:
-		return m, nil
+		return m, cmd
 	}
 }
 
 // handleKeyPress processes all keyboard input
-func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m Model) handleKeyPress(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch msg.String() {
 
 	// Quit keys - always available
@@ -171,7 +180,7 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // handleEnter processes the Enter key - advances to next step
-func (m Model) handleEnter() (tea.Model, tea.Cmd) {
+func (m Model) handleEnter() (Model, tea.Cmd) {
 	switch m.step {
 
 	// Date selected - move to project selection
@@ -218,7 +227,7 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 }
 
 // handleTextInput updates text input fields when user types
-func (m Model) handleTextInput(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) handleTextInput(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	// Update the appropriate text input based on current step

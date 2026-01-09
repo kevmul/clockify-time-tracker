@@ -42,6 +42,7 @@ func fetchUserInfo(apiKey string) tea.Cmd {
 // When complete, it sends a projectsMsg back to Update()
 func fetchProjects(apiKey, workspaceID string) tea.Cmd {
 	return func() tea.Msg {
+		time.Sleep(3 * time.Second)
 		client := api.NewClient(apiKey)
 		projects, err := client.GetProjects(workspaceID)
 

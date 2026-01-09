@@ -45,6 +45,7 @@ type Model struct {
 
 	// Loading state
 	spinner spinner.Model
+	loading bool
 }
 
 // New creates and initializes a new model with the provided configuration
@@ -82,6 +83,7 @@ func New(config *utils.Config) Model {
 		cursor:        0,             // Start at first item in lists
 		apiKey:        config.APIKey, // Store API key from config
 		spinner:       s,
+		loading:       false,
 	}
 }
 
@@ -91,7 +93,7 @@ func New(config *utils.Config) Model {
 func (m Model) Init() tea.Cmd {
 	// Fetch user info (workspace ID and user ID) as our first action
 	return tea.Batch(
-		// m.spinner.Tick,
+		m.spinner.Tick,
 		fetchUserInfo(m.apiKey),
 	)
 }
