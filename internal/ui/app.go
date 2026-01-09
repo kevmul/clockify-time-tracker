@@ -4,6 +4,7 @@ import (
 	"clockify-time-tracker/internal/messages"
 	"clockify-time-tracker/internal/ui/components/router"
 	"clockify-time-tracker/internal/ui/components/sidebar"
+	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/utils"
 	"fmt"
 
@@ -15,6 +16,7 @@ type Model struct {
 	sidebar     sidebar.Model
 	router      router.Model
 	focusedPane string // "sidebar" or "content"
+	quitting    bool
 }
 
 func New(config *utils.Config) Model {
@@ -24,6 +26,7 @@ func New(config *utils.Config) Model {
 		sidebar:     sidebar.New(items, 10),
 		router:      router.New(config),
 		focusedPane: "sidebar", // Start with the sidebar focused
+		quitting:    false,
 	}
 }
 
@@ -39,8 +42,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
-			return m, tea.Quit
+		// case "ctrl+c", "q":
+		// 	m.quitting = true
+		// 	return m, tea.Quit
 		case "tab": // We can change this later
 			if m.focusedPane == "sidebar" {
 				m.focusedPane = "content"
@@ -63,6 +67,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusedPane = "content"
 		}
 		return m, tea.Batch(cmds...)
+	case messages.QuittingAppMsg:
+		m.quitting = true
+		return m, tea.Quit
 	}
 
 	// Route UI messages based on focus
@@ -78,6 +85,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+
+	// Clear the screen when quitting the app
+	if m.quitting {
+		// return "\n"
+	}
 
 	sidebarView := m.sidebar.View()
 	if m.focusedPane == "sidebar" {
@@ -97,7 +109,12 @@ func (m Model) View() string {
 		m.router.View(),
 	)
 
-	app := content
+	title := styles.TitleStyle.Render("⏱️  Clockify Time Tracker")
+	app := lipgloss.JoinVertical(
+		lipgloss.Left,
+		title,
+		content,
+	)
 
 	help := fmt.Sprintf("\nFocused %s | [Tab] to switch focus | [Esc] to return to Sidebar | [q] to quit", m.focusedPane)
 

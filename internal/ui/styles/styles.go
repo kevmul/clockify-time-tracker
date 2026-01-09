@@ -22,7 +22,7 @@ var (
 	// titleStyle is used for the main app title at the top
 	TitleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(ColorHeaderText). // Pink/magenta color
+			Foreground(ColorPrimary). // Pink/magenta color
 			MarginBottom(1)
 
 	// selectedStyle highlights the currently selected item

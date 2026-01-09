@@ -119,14 +119,18 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 	// Quit keys - always available
 	case "ctrl+c":
-		return m, tea.Quit
+		return m, func() tea.Msg {
+			return messages.QuittingAppMsg{}
+		}
 
 	// Quit keys - always available unless in search
 	case "q":
 		if m.step == stepProjectSelect && m.projectSearch.Focused() {
 			return m, nil
 		}
-		return m, tea.Quit
+		return m, func() tea.Msg {
+			return messages.QuittingAppMsg{}
+		}
 
 	case "t":
 		if m.step == stepDateSelect {

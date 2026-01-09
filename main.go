@@ -6,7 +6,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	
+
 	"clockify-time-tracker/internal/ui"
 	"clockify-time-tracker/internal/utils"
 )
@@ -22,8 +22,8 @@ func main() {
 
 	// Create a new Bubble Tea program with our UI model
 	// The ui.New() function initializes the model with our config
-	p := tea.NewProgram(ui.New(config))
-	
+	p := tea.NewProgram(ui.New(config), tea.WithAltScreen())
+
 	// Run the program - this starts the interactive TUI
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Error: %v\n", err)

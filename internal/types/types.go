@@ -41,3 +41,5 @@ type UserInfoMsg struct {
 type SubmitSuccessMsg struct{}
 
 type SetLoadingMsg struct{}
+
+type QuittingAppMsg struct{}

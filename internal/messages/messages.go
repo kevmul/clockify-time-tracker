@@ -10,3 +10,4 @@ type TasksMsg = types.TasksMsg
 type UserInfoMsg = types.UserInfoMsg
 type SetLoadingMsg = types.SetLoadingMsg
 type SubmitSuccessMsg = types.SubmitSuccessMsg
+type QuittingAppMsg = types.QuittingAppMsg

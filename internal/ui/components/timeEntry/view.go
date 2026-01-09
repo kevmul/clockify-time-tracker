@@ -24,7 +24,7 @@ func (m Model) View() string {
 
 	// Start building the UI string
 	// We use a string builder for efficiency
-	s := styles.TitleStyle.Render("⏱️  Clockify Time Tracker") + "\n\n"
+	s := ""
 
 	// Render different content based on current step
 	switch m.step {
