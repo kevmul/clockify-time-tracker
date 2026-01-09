@@ -4,9 +4,9 @@ package timeentry
 
 import (
 	"clockify-time-tracker/internal/messages"
+	"fmt"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -18,6 +18,7 @@ import (
 // It's the only place where we modify the Model
 // Returns the updated Model and any commands to run
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
 	// Handle text input FIRST before checking message types
 	// This ensures text inputs get all key events
 	if m.step == stepTimeInput || m.step == stepTaskInput || (m.step == stepProjectSelect && m.projectSearch.Focused()) {
@@ -55,10 +56,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	// Spinner tick messages
-	case spinner.TickMsg:
-		var cmd tea.Cmd
-		m.spinner, cmd = m.spinner.Update(msg)
-		return m, cmd
+	// case spinner.TickMsg:
+	// 	var cmd tea.Cmd
+	// 	m.spinner, cmd = m.spinner.Update(msg)
+	// 	return m, cmd
 
 	// Keyboard input from the user
 	case tea.KeyMsg:
@@ -66,9 +67,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// User info was fetched successfully
 	case messages.UserInfoMsg:
+		fmt.Printf("\nDEBUG: Received UserInfoMsg - WorkspaceID: %s, UserID: %s\n",
+			msg.WorkspaceID, msg.UserID)
 		m.workspaceID = msg.WorkspaceID
 		m.userID = msg.UserID
 		// Now fetch projects and tasks in parallel using tea.Batch
+		fmt.Println("\nDEBUG: About to fetch projects and tasks")
 		return m, tea.Batch(
 			fetchProjects(m.apiKey, m.workspaceID),
 			fetchTasks(m.apiKey, m.workspaceID, m.userID),

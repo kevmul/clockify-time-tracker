@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"clockify-time-tracker/internal/debug"
 	"clockify-time-tracker/internal/messages"
 	"clockify-time-tracker/internal/ui/components/router"
 	"clockify-time-tracker/internal/ui/components/sidebar"
@@ -29,11 +30,15 @@ func New(config *utils.Config) Model {
 
 func (m Model) Init() tea.Cmd {
 	return m.router.Init()
+	// return nil
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
+
+	// Debug: Log all message types received by main app
+	debug.Log("Main app received message type: %T", msg)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -53,17 +58,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case messages.NavigationMsg:
-		// Handle the navigation
-		m.router = m.router.SetView(msg)
-		// Could trigger other actions here like loading data
+		debug.Log("Main app handling NavigationMsg: %s", msg.Item)
+		// Handle the navigation by sending to router
+		var cmd tea.Cmd
+		m.router, cmd = m.router.Update(msg)
+		cmds = append(cmds, cmd)
 
 		if msg.Item == "Time Entry" {
 			m.focusedPane = "content"
 		}
-		return m, nil
+		return m, tea.Batch(cmds...)
 	}
 
-	// Route messages based on focus
+	// Route UI messages based on focus
 	if m.focusedPane == "sidebar" {
 		m.sidebar, cmd = m.sidebar.Update(msg)
 		cmds = append(cmds, cmd)
@@ -91,7 +98,7 @@ func (m Model) View() string {
 
 	content := lipgloss.JoinHorizontal(
 		lipgloss.Top,
-		m.sidebar.View(),
+		sidebarView,
 		m.router.View(),
 	)
 
