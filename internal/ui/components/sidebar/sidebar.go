@@ -1,7 +1,6 @@
 package sidebar
 
 import (
-	"clockify-time-tracker/internal/debug"
 	"clockify-time-tracker/internal/messages"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,11 +25,8 @@ func New(items []string, height int) Model {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	debug.Log("Sidebar received message type: %T", msg)
-	
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		debug.Log("Sidebar received key: %s", msg.String())
 		switch msg.String() {
 		case "up", "k":
 			if m.cursor > 0 {
@@ -49,10 +45,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				}
 			}
 		case "enter":
-			debug.Log("Sidebar Enter pressed! Selected item: %s", m.SelectedItem())
 			// Send a message when something is selected
 			return m, func() tea.Msg {
-				debug.Log("Creating NavigationMsg")
 				return messages.NavigationMsg{
 					Item:  m.SelectedItem(),
 					Index: m.SelectedIndex(),

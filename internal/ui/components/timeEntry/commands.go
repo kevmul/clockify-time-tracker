@@ -5,7 +5,6 @@ package timeentry
 
 import (
 	"clockify-time-tracker/internal/api"
-	"clockify-time-tracker/internal/debug"
 	"clockify-time-tracker/internal/messages"
 	"fmt"
 	"time"
@@ -17,26 +16,19 @@ import (
 // When complete, it sends a userInfoMsg back to Update()
 func fetchUserInfo(apiKey string) tea.Cmd {
 	return func() tea.Msg {
-		debug.Log("fetchUserInfo called with apiKey: %s...", apiKey[:10])
-		
+
 		// Create API client and fetch user info
 		client := api.NewClient(apiKey)
 		userInfo, err := client.GetUserInfo()
 
 		// If error, return error message
 		if err != nil {
-			debug.Log("fetchUserInfo error: %v", err)
 			return messages.ErrMsg(err)
 		}
 
-		// Debug: Check if we got valid workspace ID
 		if userInfo.DefaultWorkspace == "" {
-			debug.Log("user has no default workspace")
 			return messages.ErrMsg(fmt.Errorf("user has no default workspace"))
 		}
-
-		debug.Log("fetchUserInfo success - WorkspaceID: %s, UserID: %s", 
-			userInfo.DefaultWorkspace, userInfo.ID)
 
 		// Success - return user info message with workspace and user IDs
 		return messages.UserInfoMsg{
@@ -57,7 +49,6 @@ func fetchProjects(apiKey, workspaceID string) tea.Cmd {
 			return messages.ErrMsg(err)
 		}
 
-		// Debug: Add some logging to see what we got
 		// TODO: Remove this debug code later
 		if len(projects) == 0 {
 			return messages.ErrMsg(fmt.Errorf("no projects found for workspace %s", workspaceID))

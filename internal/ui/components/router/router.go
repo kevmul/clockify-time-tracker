@@ -1,12 +1,10 @@
 package router
 
 import (
-	"clockify-time-tracker/internal/debug"
 	"clockify-time-tracker/internal/messages"
 	timeentry "clockify-time-tracker/internal/ui/components/timeEntry"
 	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/utils"
-	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -51,16 +49,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	// Handle view changes
 	switch msg := msg.(type) {
 	case messages.NavigationMsg:
-		debug.Log("Router received NavigationMsg: %s", msg.Item)
 		oldView := m.currentView
 		m.currentView = msg.Item
 
-		fmt.Printf("Old: %s | New: %s", oldView, m.currentView)
-
 		if oldView != m.currentView {
-			debug.Log("Router calling initCurrentView() for: %s", m.currentView)
 			cmd := m.initCurrentView()
-			debug.Log("Router initCurrentView() returned command: %v", cmd != nil)
 			return m, cmd
 		}
 		return m, nil
@@ -79,13 +72,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) initCurrentView() tea.Cmd {
-	debug.Log("initCurrentView called for: %s", m.currentView)
 	switch m.currentView {
 	case "Time Entry":
-		debug.Log("Calling timeEntry.Init()")
 		return m.timeEntry.Init()
 	default:
-		debug.Log("No init needed for view: %s", m.currentView)
 		return nil
 	}
 }

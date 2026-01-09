@@ -2,7 +2,6 @@ package timeentry
 
 import (
 	"clockify-time-tracker/internal/api"
-	"clockify-time-tracker/internal/debug"
 	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/utils"
 	"time"
@@ -90,7 +89,6 @@ func New(config *utils.Config) Model {
 // It returns a command that will fetch the user's info from Clockify
 // This is part of the Bubble Tea architecture - Init returns initial commands to run
 func (m Model) Init() tea.Cmd {
-	debug.Log("timeEntry Init() called")
 	// Fetch user info (workspace ID and user ID) as our first action
 	return tea.Batch(
 		// m.spinner.Tick,

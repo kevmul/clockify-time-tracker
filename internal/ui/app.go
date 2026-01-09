@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"clockify-time-tracker/internal/debug"
 	"clockify-time-tracker/internal/messages"
 	"clockify-time-tracker/internal/ui/components/router"
 	"clockify-time-tracker/internal/ui/components/sidebar"
@@ -37,9 +36,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
-	// Debug: Log all message types received by main app
-	debug.Log("Main app received message type: %T", msg)
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -58,7 +54,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case messages.NavigationMsg:
-		debug.Log("Main app handling NavigationMsg: %s", msg.Item)
 		// Handle the navigation by sending to router
 		var cmd tea.Cmd
 		m.router, cmd = m.router.Update(msg)

@@ -4,7 +4,6 @@ package timeentry
 
 import (
 	"clockify-time-tracker/internal/messages"
-	"fmt"
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -67,12 +66,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// User info was fetched successfully
 	case messages.UserInfoMsg:
-		fmt.Printf("\nDEBUG: Received UserInfoMsg - WorkspaceID: %s, UserID: %s\n",
-			msg.WorkspaceID, msg.UserID)
 		m.workspaceID = msg.WorkspaceID
 		m.userID = msg.UserID
 		// Now fetch projects and tasks in parallel using tea.Batch
-		fmt.Println("\nDEBUG: About to fetch projects and tasks")
 		return m, tea.Batch(
 			fetchProjects(m.apiKey, m.workspaceID),
 			fetchTasks(m.apiKey, m.workspaceID, m.userID),
