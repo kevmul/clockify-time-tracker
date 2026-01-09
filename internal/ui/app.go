@@ -1,9 +1,9 @@
 package ui
 
 import (
+	"clockify-time-tracker/internal/messages"
 	"clockify-time-tracker/internal/ui/components/router"
 	"clockify-time-tracker/internal/ui/components/sidebar"
-	"clockify-time-tracker/internal/ui/messages"
 	"clockify-time-tracker/internal/utils"
 	"fmt"
 
@@ -28,7 +28,7 @@ func New(config *utils.Config) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return m.router.Init()
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -97,7 +97,7 @@ func (m Model) View() string {
 
 	app := content
 
-	help := fmt.Sprintf("\nFocused %s | [Tab] to swithc focus | [Esc] to return to Sidebar | [q] to quit", m.focusedPane)
+	help := fmt.Sprintf("\nFocused %s | [Tab] to switch focus | [Esc] to return to Sidebar | [q] to quit", m.focusedPane)
 
 	return app + help
 }

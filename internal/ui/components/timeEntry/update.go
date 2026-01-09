@@ -3,23 +3,16 @@
 package timeentry
 
 import (
-	"clockify-time-tracker/internal/api"
+	"clockify-time-tracker/internal/messages"
 	"time"
 
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 // Message types that can be sent to Update()
 // These are custom types that wrap the actual data
-type projectsMsg []api.Project // List of projects from API
-type tasksMsg []string         // List of task descriptions
-type userInfoMsg struct {      // User info from API
-	workspaceID string
-	userID      string
-}
-type errMsg error              // Error that occurred
-type submitSuccessMsg struct{} // Empty struct signals success
 
 // Update is called whenever a message is received
 // It's the only place where we modify the Model
@@ -61,14 +54,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Check what type of message we received
 	switch msg := msg.(type) {
 
+	// Spinner tick messages
+	case spinner.TickMsg:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
+
 	// Keyboard input from the user
 	case tea.KeyMsg:
 		return m.handleKeyPress(msg)
 
 	// User info was fetched successfully
-	case userInfoMsg:
-		m.workspaceID = msg.workspaceID
-		m.userID = msg.userID
+	case messages.UserInfoMsg:
+		m.workspaceID = msg.WorkspaceID
+		m.userID = msg.UserID
 		// Now fetch projects and tasks in parallel using tea.Batch
 		return m, tea.Batch(
 			fetchProjects(m.apiKey, m.workspaceID),
@@ -76,22 +75,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		)
 
 	// Projects were fetched successfully
-	case projectsMsg:
+	case messages.ProjectsMsg:
 		m.projects = msg
 		return m, nil
 
 	// Tasks were fetched successfully
-	case tasksMsg:
+	case messages.TasksMsg:
 		m.tasks = msg
 		return m, nil
 
 	// An error occurred
-	case errMsg:
+	case messages.ErrMsg:
 		m.err = msg
 		return m, tea.Quit // Quit the program on error
 
 	// Time entry was created successfully
-	case submitSuccessMsg:
+	case messages.SubmitSuccessMsg:
 		m.success = true
 		m.step = stepComplete
 		return m, tea.Quit // Quit after success
@@ -99,9 +98,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Window was resized (we don't handle this yet)
 	case tea.WindowSizeMsg:
 		return m, nil
-	}
 
-	return m, nil
+	default:
+		return m, nil
+	}
 }
 
 // handleKeyPress processes all keyboard input
@@ -164,6 +164,7 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	// Enter key - confirm current step and move to next
 	case "enter":
 		return m.handleEnter()
+
 	}
 
 	return m, nil

@@ -1,7 +1,7 @@
 package sidebar
 
 import (
-	"clockify-time-tracker/internal/ui/messages"
+	"clockify-time-tracker/internal/messages"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

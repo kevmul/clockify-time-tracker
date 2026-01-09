@@ -1,8 +1,8 @@
 package router
 
 import (
+	"clockify-time-tracker/internal/messages"
 	timeentry "clockify-time-tracker/internal/ui/components/timeEntry"
-	"clockify-time-tracker/internal/ui/messages"
 	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/utils"
 
@@ -36,6 +36,11 @@ func New(cfg *utils.Config) Model {
 		currentView: "Dashboard",
 		timeEntry:   timeentry.New(cfg),
 	}
+}
+
+func (m Model) Init() tea.Cmd {
+	// Initialize the timeEntry component
+	return m.timeEntry.Init()
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {

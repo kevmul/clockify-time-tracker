@@ -2,12 +2,14 @@ package timeentry
 
 import (
 	"clockify-time-tracker/internal/api"
-	"clockify-time-tracker/internal/ui/messages"
+	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/utils"
 	"time"
 
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // model represents the entire state of our application
@@ -40,6 +42,9 @@ type Model struct {
 	err        error // Any error that occurred
 	submitting bool  // Whether we're currently submitting (not used yet)
 	success    bool  // Whether submission was successful
+
+	// Loading state
+	spinner spinner.Model
 }
 
 // New creates and initializes a new model with the provided configuration
@@ -62,6 +67,11 @@ func New(config *utils.Config) Model {
 	searchInput.Placeholder = "Search projects..."
 	searchInput.Width = 50
 
+	// Loading state
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(styles.ColorPrimary)
+
 	// Return a new Model with initial state
 	return Model{
 		step:          stepDateSelect, // Start at date selection
@@ -71,6 +81,7 @@ func New(config *utils.Config) Model {
 		projectSearch: searchInput,
 		cursor:        0,             // Start at first item in lists
 		apiKey:        config.APIKey, // Store API key from config
+		spinner:       s,
 	}
 }
 
@@ -79,11 +90,8 @@ func New(config *utils.Config) Model {
 // This is part of the Bubble Tea architecture - Init returns initial commands to run
 func (m Model) Init() tea.Cmd {
 	// Fetch user info (workspace ID and user ID) as our first action
-	return fetchUserInfo(m.apiKey)
-}
-
-func (m Model) SetView(item messages.NavigationMsg) Model {
-	m.step = item.Index
-
-	return m
+	return tea.Batch(
+		m.spinner.Tick,
+		fetchUserInfo(m.apiKey),
+	)
 }

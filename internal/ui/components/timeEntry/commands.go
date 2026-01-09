@@ -5,6 +5,8 @@ package timeentry
 
 import (
 	"clockify-time-tracker/internal/api"
+	"clockify-time-tracker/internal/messages"
+	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,13 +22,18 @@ func fetchUserInfo(apiKey string) tea.Cmd {
 
 		// If error, return error message
 		if err != nil {
-			return errMsg(err)
+			return messages.ErrMsg(err)
+		}
+
+		// Debug: Check if we got valid workspace ID
+		if userInfo.DefaultWorkspace == "" {
+			return messages.ErrMsg(fmt.Errorf("user has no default workspace"))
 		}
 
 		// Success - return user info message with workspace and user IDs
-		return userInfoMsg{
-			workspaceID: userInfo.DefaultWorkspace,
-			userID:      userInfo.ID,
+		return messages.UserInfoMsg{
+			WorkspaceID: userInfo.DefaultWorkspace,
+			UserID:      userInfo.ID,
 		}
 	}
 }
@@ -39,12 +46,18 @@ func fetchProjects(apiKey, workspaceID string) tea.Cmd {
 		projects, err := client.GetProjects(workspaceID)
 
 		if err != nil {
-			return errMsg(err)
+			return messages.ErrMsg(err)
+		}
+
+		// Debug: Add some logging to see what we got
+		// TODO: Remove this debug code later
+		if len(projects) == 0 {
+			return messages.ErrMsg(fmt.Errorf("no projects found for workspace %s", workspaceID))
 		}
 
 		// Wrap the projects slice in projectsMsg type
 		// This is crucial - it converts []api.Project to projectsMsg
-		return projectsMsg(projects)
+		return messages.ProjectsMsg(projects)
 	}
 }
 
@@ -56,11 +69,11 @@ func fetchTasks(apiKey, workspaceID, userID string) tea.Cmd {
 		tasks, err := client.GetTasks(workspaceID, userID)
 
 		if err != nil {
-			return errMsg(err)
+			return messages.ErrMsg(err)
 		}
 
 		// Wrap the tasks slice in tasksMsg type
-		return tasksMsg(tasks)
+		return messages.TasksMsg(tasks)
 	}
 }
 
@@ -72,10 +85,10 @@ func createTimeEntry(apiKey, workspaceID, projectID, description, timeRange stri
 		err := client.CreateTimeEntry(workspaceID, projectID, description, timeRange, date)
 
 		if err != nil {
-			return errMsg(err)
+			return messages.ErrMsg(err)
 		}
 
 		// Success - return success message
-		return submitSuccessMsg{}
+		return messages.SubmitSuccessMsg{}
 	}
 }

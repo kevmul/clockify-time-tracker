@@ -2,8 +2,11 @@
 package api
 
 import (
+	"clockify-time-tracker/internal/types"
 	"encoding/json"
 	"fmt"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // GetUserInfo fetches the current user's information from Clockify
@@ -25,3 +28,23 @@ func (c *Client) GetUserInfo() (*UserInfo, error) {
 	return &user, nil
 }
 
+// fetchUserInfo returns a command that fetches user information
+// When complete, it sends a userInfoMsg back to Update()
+func fetchUserInfo(apiKey string) tea.Cmd {
+	return func() tea.Msg {
+		// Create API client and fetch user info
+		client := NewClient(apiKey)
+		userInfo, err := client.GetUserInfo()
+
+		// If error, return error message
+		if err != nil {
+			return types.ErrMsg(err)
+		}
+
+		// Success - return user info message with workspace and user IDs
+		return types.UserInfoMsg{
+			WorkspaceID: userInfo.DefaultWorkspace,
+			UserID:      userInfo.ID,
+		}
+	}
+}
