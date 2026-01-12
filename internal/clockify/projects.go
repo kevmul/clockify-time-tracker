@@ -1,5 +1,5 @@
 // Functions for fetching projects from Clockify
-package api
+package clockify
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 func (c *Client) GetProjects(workspaceID string) ([]Project, error) {
 	// Build the endpoint URL with the workspace ID
 	endpoint := fmt.Sprintf("/workspaces/%s/projects", workspaceID)
-	
+
 	// Make the GET request
 	body, err := c.get(endpoint)
 	if err != nil {
@@ -26,4 +26,3 @@ func (c *Client) GetProjects(workspaceID string) ([]Project, error) {
 
 	return projects, nil
 }
-

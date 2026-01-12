@@ -1,10 +1,10 @@
 // internal/ui/commands.go
 // Wraps API calls into Bubble Tea commands
 // Commands are functions that return messages - they bridge the API and UI layers
-package timeentry
+package timeform
 
 import (
-	"clockify-time-tracker/internal/api"
+	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/messages"
 	"fmt"
 	"time"
@@ -18,7 +18,7 @@ func fetchUserInfo(apiKey string) tea.Cmd {
 	return func() tea.Msg {
 
 		// Create API client and fetch user info
-		client := api.NewClient(apiKey)
+		client := clockify.NewClient(apiKey)
 		userInfo, err := client.GetUserInfo()
 
 		// If error, return error message
@@ -43,7 +43,7 @@ func fetchUserInfo(apiKey string) tea.Cmd {
 func fetchProjects(apiKey, workspaceID string) tea.Cmd {
 	return func() tea.Msg {
 		time.Sleep(3 * time.Second)
-		client := api.NewClient(apiKey)
+		client := clockify.NewClient(apiKey)
 		projects, err := client.GetProjects(workspaceID)
 
 		if err != nil {
@@ -65,7 +65,7 @@ func fetchProjects(apiKey, workspaceID string) tea.Cmd {
 // When complete, it sends a tasksMsg back to Update()
 func fetchTasks(apiKey, workspaceID, userID string) tea.Cmd {
 	return func() tea.Msg {
-		client := api.NewClient(apiKey)
+		client := clockify.NewClient(apiKey)
 		tasks, err := client.GetTasks(workspaceID, userID)
 
 		if err != nil {
@@ -81,7 +81,7 @@ func fetchTasks(apiKey, workspaceID, userID string) tea.Cmd {
 // When complete, it sends either submitSuccessMsg or errMsg
 func createTimeEntry(apiKey, workspaceID, projectID, description, timeRange string, date time.Time) tea.Cmd {
 	return func() tea.Msg {
-		client := api.NewClient(apiKey)
+		client := clockify.NewClient(apiKey)
 		err := client.CreateTimeEntry(workspaceID, projectID, description, timeRange, date)
 
 		if err != nil {

@@ -1,8 +1,7 @@
 // Functions for fetching user information from Clockify
-package api
+package clockify
 
 import (
-	"clockify-time-tracker/internal/types"
 	"encoding/json"
 	"fmt"
 
@@ -38,11 +37,11 @@ func fetchUserInfo(apiKey string) tea.Cmd {
 
 		// If error, return error message
 		if err != nil {
-			return types.ErrMsg(err)
+			return ErrMsg(err)
 		}
 
 		// Success - return user info message with workspace and user IDs
-		return types.UserInfoMsg{
+		return UserInfoMsg{
 			WorkspaceID: userInfo.DefaultWorkspace,
 			UserID:      userInfo.ID,
 		}

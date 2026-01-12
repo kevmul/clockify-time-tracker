@@ -1,11 +1,9 @@
-package ui
+package app
 
 import (
+	"clockify-time-tracker/internal/config"
 	"clockify-time-tracker/internal/messages"
-	"clockify-time-tracker/internal/ui/components/router"
-	"clockify-time-tracker/internal/ui/components/sidebar"
 	"clockify-time-tracker/internal/ui/styles"
-	"clockify-time-tracker/internal/utils"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,18 +11,18 @@ import (
 )
 
 type Model struct {
-	sidebar     sidebar.Model
-	router      router.Model
+	sidebar     SidebarModel
+	router      RouterModel
 	focusedPane string // "sidebar" or "content"
 	quitting    bool
 }
 
-func New(config *utils.Config) Model {
+func New(config *config.Config) Model {
 	items := []string{"Dashboard", "Time Entry", "Reports"}
 
 	return Model{
-		sidebar:     sidebar.New(items, 10),
-		router:      router.New(config),
+		sidebar:     NewSidebar(items, 10),
+		router:      NewRouter(config),
 		focusedPane: "sidebar", // Start with the sidebar focused
 		quitting:    false,
 	}

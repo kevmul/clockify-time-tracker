@@ -1,5 +1,5 @@
 // Defines the different steps/screens in our application flow
-package timeentry
+package timeform
 
 // These constants represent each screen in our UI flow
 // Using constants (instead of magic numbers) makes the code more readable

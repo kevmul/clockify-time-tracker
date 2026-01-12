@@ -1,13 +1,13 @@
 package messages
 
-import "clockify-time-tracker/internal/types"
+import "clockify-time-tracker/internal/clockify"
 
 // Re-export types for backward compatibility
-type NavigationMsg = types.NavigationMsg
-type ErrMsg = types.ErrMsg
-type ProjectsMsg = types.ProjectsMsg
-type TasksMsg = types.TasksMsg
-type UserInfoMsg = types.UserInfoMsg
-type SetLoadingMsg = types.SetLoadingMsg
-type SubmitSuccessMsg = types.SubmitSuccessMsg
-type QuittingAppMsg = types.QuittingAppMsg
+type NavigationMsg = clockify.NavigationMsg
+type ErrMsg = clockify.ErrMsg
+type ProjectsMsg = clockify.ProjectsMsg
+type TasksMsg = clockify.TasksMsg
+type UserInfoMsg = clockify.UserInfoMsg
+type SetLoadingMsg = clockify.SetLoadingMsg
+type SubmitSuccessMsg = clockify.SubmitSuccessMsg
+type QuittingAppMsg = clockify.QuittingAppMsg

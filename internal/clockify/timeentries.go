@@ -1,5 +1,5 @@
 // Functions for creating and fetching time entries in Clockify
-package api
+package clockify
 
 import (
 	"encoding/json"
@@ -40,7 +40,7 @@ func (c *Client) CreateTimeEntry(workspaceID, projectID, description, timeRange 
 func (c *Client) GetTasks(workspaceID, userID string) ([]string, error) {
 	// Build endpoint for user's time entries
 	endpoint := fmt.Sprintf("/workspaces/%s/user/%s/time-entries", workspaceID, userID)
-	
+
 	// Make GET request
 	body, err := c.get(endpoint)
 	if err != nil {
@@ -56,7 +56,7 @@ func (c *Client) GetTasks(workspaceID, userID string) ([]string, error) {
 	// Extract unique task descriptions using a map as a set
 	taskMap := make(map[string]bool)
 	var tasks []string
-	
+
 	for _, entry := range entries {
 		// Only add non-empty descriptions that we haven't seen before
 		if entry.Description != "" && !taskMap[entry.Description] {
@@ -91,10 +91,10 @@ func parseTime(timeStr string, date time.Time) time.Time {
 	timeStr = strings.ReplaceAll(timeStr, " ", "")
 
 	var hour, minute int
-	
+
 	// Check if PM (afternoon/evening)
 	isPM := strings.HasSuffix(timeStr, "p") || strings.HasSuffix(timeStr, "pm")
-	
+
 	// Remove the am/pm suffix
 	timeStr = strings.TrimSuffix(strings.TrimSuffix(timeStr, "p"), "m")
 	timeStr = strings.TrimSuffix(strings.TrimSuffix(timeStr, "a"), "m")

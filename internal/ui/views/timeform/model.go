@@ -1,9 +1,9 @@
-package timeentry
+package timeform
 
 import (
-	"clockify-time-tracker/internal/api"
+	"clockify-time-tracker/internal/clockify"
+	"clockify-time-tracker/internal/config"
 	"clockify-time-tracker/internal/ui/styles"
-	"clockify-time-tracker/internal/utils"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -19,19 +19,19 @@ type Model struct {
 	step int
 
 	// Data from API
-	projects []api.Project // List of available projects
-	tasks    []string      // Recent task descriptions for suggestions
+	projects []clockify.Project // List of available projects
+	tasks    []string           // Recent task descriptions for suggestions
 
 	// Navigation state
 	cursor   int // Current position in lists (for arrow key navigation)
 	selected int // Index of selected item (not currently used but kept for future)
 
 	// User inputs
-	date          time.Time       // Selected date for time entry
-	timeRange     textinput.Model // Text input for time range (e.g., "9a - 5p")
-	taskName      textinput.Model // Text input for task description
-	projectSearch textinput.Model // Text input for project search
-	selectedProj  api.Project     // The project user selected
+	date          time.Time        // Selected date for time entry
+	timeRange     textinput.Model  // Text input for time range (e.g., "9a - 5p")
+	taskName      textinput.Model  // Text input for task description
+	projectSearch textinput.Model  // Text input for project search
+	selectedProj  clockify.Project // The project user selected
 
 	// API credentials and IDs
 	apiKey      string // Clockify API key
@@ -50,7 +50,7 @@ type Model struct {
 
 // New creates and initializes a new model with the provided configuration
 // This is called from main.go when the app starts
-func New(config *utils.Config) Model {
+func New(config *config.Config) Model {
 	// Create and configure the time range text input
 	ti := textinput.New()
 	ti.Placeholder = "9a - 5p" // Show example format

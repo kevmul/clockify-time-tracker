@@ -2,19 +2,18 @@
 package main
 
 import (
+	"clockify-time-tracker/internal/app"
+	"clockify-time-tracker/internal/config"
 	"fmt"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-
-	"clockify-time-tracker/internal/ui"
-	"clockify-time-tracker/internal/utils"
 )
 
 func main() {
 	// Load configuration from .env file
 	// This will read CLOCKIFY_API_KEY and return an error if not found
-	config, err := utils.LoadConfig()
+	config, err := config.LoadConfig()
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
@@ -22,7 +21,7 @@ func main() {
 
 	// Create a new Bubble Tea program with our UI model
 	// The ui.New() function initializes the model with our config
-	p := tea.NewProgram(ui.New(config), tea.WithAltScreen())
+	p := tea.NewProgram(app.New(config), tea.WithAltScreen())
 
 	// Run the program - this starts the interactive TUI
 	if _, err := p.Run(); err != nil {

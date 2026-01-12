@@ -1,9 +1,9 @@
 // Renders the styles.based on current Model state
 // This is called every time the state changes
-package timeentry
+package timeform
 
 import (
-	"clockify-time-tracker/internal/api"
+	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/ui/styles"
 	"fmt"
 	"strings"
@@ -137,13 +137,13 @@ func (m Model) renderProjectSelect() string {
 }
 
 // filterProjects returns projects that match the current search query
-func (m Model) filterProjects() []api.Project {
+func (m Model) filterProjects() []clockify.Project {
 	query := strings.ToLower(strings.TrimSpace(m.projectSearch.Value()))
 	if query == "" {
 		return m.projects
 	}
 
-	var filtered []api.Project
+	var filtered []clockify.Project
 	for _, proj := range m.projects {
 		if strings.Contains(strings.ToLower(proj.Name), query) {
 			filtered = append(filtered, proj)

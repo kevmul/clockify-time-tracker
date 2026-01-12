@@ -1,4 +1,4 @@
-package types
+package clockify
 
 // API types
 type UserInfo struct {

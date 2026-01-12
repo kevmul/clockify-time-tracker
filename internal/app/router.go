@@ -1,15 +1,15 @@
-package router
+package app
 
 import (
+	"clockify-time-tracker/internal/config"
 	"clockify-time-tracker/internal/messages"
-	timeentry "clockify-time-tracker/internal/ui/components/timeEntry"
 	"clockify-time-tracker/internal/ui/styles"
-	"clockify-time-tracker/internal/utils"
+	timeentry "clockify-time-tracker/internal/ui/views/timeform"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Model struct {
+type RouterModel struct {
 	currentView string
 
 	// Each view has its own component
@@ -18,7 +18,7 @@ type Model struct {
 	// projects projects.Model
 }
 
-func (m Model) View() string {
+func (m RouterModel) View() string {
 	var content string
 
 	switch m.currentView {
@@ -31,19 +31,19 @@ func (m Model) View() string {
 	return styles.MainContentStyle.Render(content)
 }
 
-func New(cfg *utils.Config) Model {
-	return Model{
+func NewRouter(cfg *config.Config) RouterModel {
+	return RouterModel{
 		currentView: "Dashboard",
 		timeEntry:   timeentry.New(cfg),
 	}
 }
 
-func (m Model) Init() tea.Cmd {
+func (m RouterModel) Init() tea.Cmd {
 	// Don't initialize any view by default - only when user navigates
 	return nil
 }
 
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m RouterModel) Update(msg tea.Msg) (RouterModel, tea.Cmd) {
 	var cmd tea.Cmd
 
 	// Handle view changes
@@ -69,7 +69,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) initCurrentView() tea.Cmd {
+func (m RouterModel) initCurrentView() tea.Cmd {
 
 	switch m.currentView {
 	case "Time Entry":

@@ -1,5 +1,5 @@
 // Provides a reusable HTTP client for making Clockify API requests
-package api
+package clockify
 
 import (
 	"bytes"
@@ -35,7 +35,7 @@ func NewClient(apiKey string) *Client {
 // - Error handling for non-2xx responses
 func (c *Client) doRequest(method, endpoint string, body interface{}) ([]byte, error) {
 	var reqBody io.Reader
-	
+
 	// If we have a body, marshal it to JSON
 	if body != nil {
 		jsonData, err := json.Marshal(body)

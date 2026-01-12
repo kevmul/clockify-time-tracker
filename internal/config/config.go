@@ -1,5 +1,5 @@
 // Handles loading and validating configuration from environment variables
-package utils
+package config
 
 import (
 	"fmt"
