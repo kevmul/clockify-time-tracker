@@ -1,7 +1,7 @@
 package app
 
 import (
-	"clockify-time-tracker/internal/messages"
+	"clockify-time-tracker/internal/clockify"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -62,9 +62,19 @@ func (m SidebarModel) Update(msg tea.Msg) (SidebarModel, tea.Cmd) {
 		case "enter":
 			// Send a message when something is selected
 			return m, func() tea.Msg {
-				return messages.NavigationMsg{
-					Item:  m.SelectedItem(),
-					Index: m.SelectedIndex(),
+				var view clockify.ViewState
+				switch m.SelectedItem() {
+				case "Dashboard":
+					view = clockify.ViewDashboard
+				case "Time Entry":
+					view = clockify.ViewTimeList
+				case "Reports":
+					view = clockify.ViewSettings
+				default:
+					view = clockify.ViewDashboard
+				}
+				return clockify.NavigationMsg{
+					View: view,
 				}
 			}
 		}

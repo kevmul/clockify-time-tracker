@@ -3,7 +3,7 @@
 package timeform
 
 import (
-	"clockify-time-tracker/internal/messages"
+	"clockify-time-tracker/internal/clockify"
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -66,16 +66,16 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m.handleKeyPress(msg)
 
 	// User info was fetched successfully
-	case messages.UserInfoMsg:
+	case clockify.UserInfoMsg:
 		m.workspaceID = msg.WorkspaceID
 		m.userID = msg.UserID
 		// Now fetch projects and tasks in parallel using tea.Batch
 		return m, func() tea.Msg {
-			return messages.SetLoadingMsg{}
+			return clockify.SetLoadingMsg{}
 		}
 
 		// Start loading the data
-	case messages.SetLoadingMsg:
+	case clockify.SetLoadingMsg:
 		m.loading = true
 		return m, tea.Batch(
 			fetchProjects(m.apiKey, m.workspaceID),
@@ -83,23 +83,23 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		)
 
 	// Projects were fetched successfully
-	case messages.ProjectsMsg:
+	case clockify.ProjectsMsg:
 		m.loading = false
 		m.projects = msg
 		return m, nil
 
 	// Tasks were fetched successfully
-	case messages.TasksMsg:
+	case clockify.TasksMsg:
 		m.tasks = msg
 		return m, nil
 
 	// An error occurred
-	case messages.ErrMsg:
+	case clockify.ErrMsg:
 		m.err = msg
 		return m, tea.Quit // Quit the program on error
 
 	// Time entry was created successfully
-	case messages.SubmitSuccessMsg:
+	case clockify.SubmitSuccessMsg:
 		m.success = true
 		m.step = stepComplete
 		return m, tea.Quit // Quit after success
@@ -120,7 +120,7 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (Model, tea.Cmd) {
 	// Quit keys - always available
 	case "ctrl+c":
 		return m, func() tea.Msg {
-			return messages.QuittingAppMsg{}
+			return clockify.QuittingAppMsg{}
 		}
 
 	// Quit keys - always available unless in search
@@ -129,7 +129,7 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m, nil
 		}
 		return m, func() tea.Msg {
-			return messages.QuittingAppMsg{}
+			return clockify.QuittingAppMsg{}
 		}
 
 	case "t":

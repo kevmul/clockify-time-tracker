@@ -1,8 +1,8 @@
 package app
 
 import (
+	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/config"
-	"clockify-time-tracker/internal/messages"
 	"clockify-time-tracker/internal/ui/styles"
 	"fmt"
 
@@ -55,17 +55,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusedPane = "sidebar"
 			return m, nil
 		}
-	case messages.NavigationMsg:
+	case clockify.NavigationMsg:
 		// Handle the navigation by sending to router
 		var cmd tea.Cmd
 		m.router, cmd = m.router.Update(msg)
 		cmds = append(cmds, cmd)
 
-		if msg.Item == "Time Entry" {
+		if msg.View == clockify.ViewTimeList {
 			m.focusedPane = "content"
 		}
 		return m, tea.Batch(cmds...)
-	case messages.QuittingAppMsg:
+	case clockify.QuittingAppMsg:
 		m.quitting = true
 		return m, tea.Quit
 	}

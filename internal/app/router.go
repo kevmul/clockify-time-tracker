@@ -1,18 +1,21 @@
 package app
 
 import (
+	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/config"
-	"clockify-time-tracker/internal/messages"
 	"clockify-time-tracker/internal/ui/styles"
+	"clockify-time-tracker/internal/ui/views/dashboard"
 	timeentry "clockify-time-tracker/internal/ui/views/timeform"
+	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type RouterModel struct {
-	currentView string
+	currentView clockify.ViewState
 
 	// Each view has its own component
+	dashboard dashboard.Model
 	timeEntry timeentry.Model
 	// dashboard dashboard.Model
 	// projects projects.Model
@@ -22,10 +25,12 @@ func (m RouterModel) View() string {
 	var content string
 
 	switch m.currentView {
-	case "Time Entry":
+	case clockify.ViewDashboard:
+		content = m.dashboard.View()
+	case clockify.ViewTimeList:
 		content = m.timeEntry.View()
 	default:
-		content = "View not found: " + m.currentView
+		content = fmt.Sprintf("View not found: %s", m.currentView)
 	}
 
 	return styles.MainContentStyle.Render(content)
@@ -33,7 +38,7 @@ func (m RouterModel) View() string {
 
 func NewRouter(cfg *config.Config) RouterModel {
 	return RouterModel{
-		currentView: "Dashboard",
+		currentView: clockify.ViewDashboard,
 		timeEntry:   timeentry.New(cfg),
 	}
 }
@@ -48,9 +53,9 @@ func (m RouterModel) Update(msg tea.Msg) (RouterModel, tea.Cmd) {
 
 	// Handle view changes
 	switch msg := msg.(type) {
-	case messages.NavigationMsg:
+	case clockify.NavigationMsg:
 		oldView := m.currentView
-		m.currentView = msg.Item
+		m.currentView = msg.View
 
 		if oldView != m.currentView {
 			cmd := m.initCurrentView()
@@ -61,7 +66,9 @@ func (m RouterModel) Update(msg tea.Msg) (RouterModel, tea.Cmd) {
 
 	// Route UI messages to the active component
 	switch m.currentView {
-	case "Time Entry":
+	case clockify.ViewDashboard:
+		return m, nil
+	case clockify.ViewTimeList:
 		m.timeEntry, cmd = m.timeEntry.Update(msg)
 		return m, cmd
 	}
@@ -72,7 +79,10 @@ func (m RouterModel) Update(msg tea.Msg) (RouterModel, tea.Cmd) {
 func (m RouterModel) initCurrentView() tea.Cmd {
 
 	switch m.currentView {
-	case "Time Entry":
+	case clockify.ViewDashboard:
+		return nil
+		// return m.dashboard.Init()
+	case clockify.ViewTimeList:
 		return m.timeEntry.Init()
 	default:
 		return nil

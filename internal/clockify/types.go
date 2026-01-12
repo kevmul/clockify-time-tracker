@@ -1,5 +1,14 @@
 package clockify
 
+// ViewState represents different views in the application
+type ViewState int
+
+const (
+	ViewDashboard ViewState = iota
+	ViewTimeList
+	ViewSettings
+)
+
 // API types
 type UserInfo struct {
 	ID               string `json:"id"`
@@ -23,23 +32,3 @@ type TimeEntryRequest struct {
 type TimeEntryResponse struct {
 	Description string `json:"description"`
 }
-
-// Message types
-type NavigationMsg struct {
-	Item  string
-	Index int
-}
-
-type ErrMsg error
-
-type ProjectsMsg []Project
-type TasksMsg []string
-type UserInfoMsg struct {
-	WorkspaceID string
-	UserID      string
-}
-type SubmitSuccessMsg struct{}
-
-type SetLoadingMsg struct{}
-
-type QuittingAppMsg struct{}

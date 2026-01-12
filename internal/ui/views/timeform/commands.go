@@ -5,7 +5,6 @@ package timeform
 
 import (
 	"clockify-time-tracker/internal/clockify"
-	"clockify-time-tracker/internal/messages"
 	"fmt"
 	"time"
 
@@ -23,15 +22,15 @@ func fetchUserInfo(apiKey string) tea.Cmd {
 
 		// If error, return error message
 		if err != nil {
-			return messages.ErrMsg(err)
+			return clockify.ErrMsg(err)
 		}
 
 		if userInfo.DefaultWorkspace == "" {
-			return messages.ErrMsg(fmt.Errorf("user has no default workspace"))
+			return clockify.ErrMsg(fmt.Errorf("user has no default workspace"))
 		}
 
 		// Success - return user info message with workspace and user IDs
-		return messages.UserInfoMsg{
+		return clockify.UserInfoMsg{
 			WorkspaceID: userInfo.DefaultWorkspace,
 			UserID:      userInfo.ID,
 		}
@@ -47,17 +46,17 @@ func fetchProjects(apiKey, workspaceID string) tea.Cmd {
 		projects, err := client.GetProjects(workspaceID)
 
 		if err != nil {
-			return messages.ErrMsg(err)
+			return clockify.ErrMsg(err)
 		}
 
 		// TODO: Remove this debug code later
 		if len(projects) == 0 {
-			return messages.ErrMsg(fmt.Errorf("no projects found for workspace %s", workspaceID))
+			return clockify.ErrMsg(fmt.Errorf("no projects found for workspace %s", workspaceID))
 		}
 
 		// Wrap the projects slice in projectsMsg type
 		// This is crucial - it converts []api.Project to projectsMsg
-		return messages.ProjectsMsg(projects)
+		return clockify.ProjectsMsg(projects)
 	}
 }
 
@@ -69,11 +68,11 @@ func fetchTasks(apiKey, workspaceID, userID string) tea.Cmd {
 		tasks, err := client.GetTasks(workspaceID, userID)
 
 		if err != nil {
-			return messages.ErrMsg(err)
+			return clockify.ErrMsg(err)
 		}
 
 		// Wrap the tasks slice in tasksMsg type
-		return messages.TasksMsg(tasks)
+		return clockify.TasksMsg(tasks)
 	}
 }
 
@@ -85,10 +84,10 @@ func createTimeEntry(apiKey, workspaceID, projectID, description, timeRange stri
 		err := client.CreateTimeEntry(workspaceID, projectID, description, timeRange, date)
 
 		if err != nil {
-			return messages.ErrMsg(err)
+			return clockify.ErrMsg(err)
 		}
 
 		// Success - return success message
-		return messages.SubmitSuccessMsg{}
+		return clockify.SubmitSuccessMsg{}
 	}
 }
