@@ -12,22 +12,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type QueryParams struct {
-	description     string
-	start           string
-	end             string
-	project         string
-	task            string
-	tags            []string
-	projectRequired bool
-	taskRequired    bool
-	hydrated        bool
-	page            int32
-	pageSize        int32
-	inProgress      bool
-	getWeekBefore   string
-}
-
 type Model struct {
 	apiKey      string
 	cursor      int
@@ -52,6 +36,10 @@ func New(cfg *config.Config) Model {
 }
 
 func (m Model) Init() tea.Cmd {
+	if len(m.entries) > 0 {
+		return nil
+	}
+
 	return tea.Batch(
 		m.spinner.Tick,
 		fetchUserInfo(m.apiKey),

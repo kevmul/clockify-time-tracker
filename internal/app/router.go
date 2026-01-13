@@ -3,7 +3,6 @@ package app
 import (
 	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/config"
-	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/ui/views/dashboard"
 	timeentry "clockify-time-tracker/internal/ui/views/timeform"
 	"clockify-time-tracker/internal/ui/views/timelist"
@@ -20,6 +19,7 @@ type RouterModel struct {
 	timeList  timelist.Model
 	timeEntry timeentry.Model
 	// projects projects.Model
+
 }
 
 func (m RouterModel) View() string {
@@ -36,7 +36,10 @@ func (m RouterModel) View() string {
 		content = fmt.Sprintf("View not found: %s", m.currentView)
 	}
 
-	return styles.MainContentStyle.Render(content)
+	// width, height, _ := term.GetSize(os.Stdout.Fd())
+
+	return content
+	// return mainContentStyle.Render(content)
 }
 
 func NewRouter(cfg *config.Config) RouterModel {

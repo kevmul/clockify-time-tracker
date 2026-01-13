@@ -9,8 +9,6 @@ import (
 func (m Model) View() string {
 	s := ""
 
-	s += fmt.Sprintf("Cursor Position: %d\n\n", m.cursor)
-
 	if m.loading {
 		s += fmt.Sprintf("%s Loading...", m.spinner.View())
 	}

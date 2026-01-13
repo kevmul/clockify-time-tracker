@@ -45,8 +45,4 @@ var (
 	// =====================================
 
 	// main content
-	MainContentStyle = lipgloss.NewStyle().
-				Border(lipgloss.NormalBorder()).
-				BorderForeground(ColorBorder).
-				Padding(1, 2)
 )

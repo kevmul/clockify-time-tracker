@@ -3,16 +3,29 @@ package app
 import (
 	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/config"
+	"clockify-time-tracker/internal/ui/components/dialog"
 	"clockify-time-tracker/internal/ui/styles"
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/term"
 )
 
 type Model struct {
-	sidebar     SidebarModel
-	router      RouterModel
+	width  int
+	height int
+
+	sidebar SidebarModel
+	router  RouterModel
+
+	// Help Modal
+	keys      KeyMap
+	helpModal dialog.Modal
+
 	focusedPane string // "sidebar" or "content"
 	quitting    bool
 }
@@ -20,11 +33,18 @@ type Model struct {
 func New(config *config.Config) Model {
 	items := []string{"Dashboard", "Time Entries", "Reports"}
 
+	keys := DefaultKeyMap()
+
 	return Model{
+		width:       80,
+		height:      24,
 		sidebar:     NewSidebar(items, 10),
 		router:      NewRouter(config),
 		focusedPane: "sidebar", // Start with the sidebar focused
 		quitting:    false,
+
+		keys:      keys,
+		helpModal: dialog.NewModal("Keyboard Shortcuts"),
 	}
 }
 
@@ -37,7 +57,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		return m, nil
+
 	case tea.KeyMsg:
+
+		if m.helpModal.Visible {
+			switch msg.String() {
+			case "esc", "?":
+				m.helpModal.Hide()
+				return m, nil
+			}
+			return m, nil
+		}
+
+		switch {
+		case key.Matches(msg, m.keys.Help):
+			m.helpModal.Show(GenerateHelpContent(m.keys))
+			return m, nil
+		}
 		switch msg.String() {
 		// We will remove this for Msg in the future.
 		case "ctrl+c", "q":
@@ -86,25 +126,41 @@ func (m Model) View() string {
 
 	// Clear the screen when quitting the app
 	if m.quitting {
-		// return "\n"
+		return "\n"
 	}
 
 	sidebarView := m.sidebar.View()
+	mainContentView := m.router.View()
 	if m.focusedPane == "sidebar" {
 		sidebarView = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("240")).
 			Render(sidebarView)
+
+		mainContentView = lipgloss.NewStyle().
+			Border(lipgloss.HiddenBorder()).
+			Padding(1, 2).
+			Render(mainContentView)
 	} else {
 		sidebarView = lipgloss.NewStyle().
 			Border(lipgloss.HiddenBorder()).
 			Render(sidebarView)
+
+		width, height, _ := term.GetSize(os.Stdout.Fd())
+
+		mainContentView = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(styles.ColorBorder).
+			Padding(1, 2).
+			Width(width - 24). // 20 is the sidebar width
+			Height(height - 100).
+			Render(mainContentView)
 	}
 
 	content := lipgloss.JoinHorizontal(
 		lipgloss.Top,
 		sidebarView,
-		m.router.View(),
+		mainContentView,
 	)
 
 	title := styles.TitleStyle.Render("⏱️  Clockify Time Tracker")
@@ -113,8 +169,145 @@ func (m Model) View() string {
 		title,
 		content,
 	)
-
 	help := fmt.Sprintf("\nFocused %s | [Tab] to switch focus | [Esc] to return to Sidebar | [q] to quit", m.focusedPane)
 
+	if m.helpModal.Visible {
+		return m.renderWithModal(app + help)
+	}
+
 	return app + help
+}
+
+func (m Model) renderWithModal(baseContent string) string {
+	// Split base content into lines
+	baseLines := strings.Split(baseContent, "\n")
+
+	// Ensure we have enough lines for the terminal height
+	for len(baseLines) < m.height {
+		baseLines = append(baseLines, "")
+	}
+
+	// Render the modal
+	modalContent := m.helpModal.View(m.width, m.height)
+	modalLines := strings.Split(modalContent, "\n")
+
+	// Calculate starting position to center the modal
+	modalHeight := len(modalLines)
+	startRow := (m.height - modalHeight) / 2
+	if startRow < 0 {
+		startRow = 0
+	}
+
+	// Find the actual width of the modal
+	modalWidth := 0
+	for _, line := range modalLines {
+		lineLen := lipgloss.Width(line)
+		if lineLen > modalWidth {
+			modalWidth = lineLen
+		}
+	}
+
+	startCol := (m.width - modalWidth) / 2
+	if startCol < 0 {
+		startCol = 0
+	}
+
+	// Helper to truncate string at visual width (ANSI-aware)
+	truncateAt := func(s string, width int) string {
+		if width <= 0 {
+			return ""
+		}
+		var result strings.Builder
+		currentWidth := 0
+		inEscape := false
+
+		for _, r := range s {
+			if r == '\x1b' {
+				inEscape = true
+			}
+
+			if inEscape {
+				result.WriteRune(r)
+				if r == 'm' {
+					inEscape = false
+				}
+				continue
+			}
+
+			if currentWidth >= width {
+				break
+			}
+
+			result.WriteRune(r)
+			currentWidth++
+		}
+		return result.String()
+	}
+
+	// Helper to skip first N visual characters (ANSI-aware)
+	skipChars := func(s string, n int) string {
+		if n <= 0 {
+			return s
+		}
+
+		skipped := 0
+		inEscape := false
+		var result strings.Builder
+		started := false
+
+		for _, r := range s {
+			if r == '\x1b' {
+				inEscape = true
+			}
+
+			if started || inEscape {
+				result.WriteRune(r)
+			}
+
+			if inEscape {
+				if r == 'm' {
+					inEscape = false
+				}
+				continue
+			}
+
+			if !started {
+				skipped++
+				if skipped > n {
+					started = true
+					result.WriteRune(r)
+				}
+			}
+		}
+		return result.String()
+	}
+
+	// Overlay modal lines onto base lines
+	for i, modalLine := range modalLines {
+		row := startRow + i
+		if row >= 0 && row < len(baseLines) {
+			baseLine := baseLines[row]
+			baseWidth := lipgloss.Width(baseLine)
+
+			// Extract left part (before modal)
+			leftPart := truncateAt(baseLine, startCol)
+
+			// Extract right part (after modal)
+			endCol := startCol + lipgloss.Width(modalLine)
+			var rightPart string
+			if endCol < baseWidth {
+				rightPart = skipChars(baseLine, endCol)
+			}
+
+			// Pad if needed
+			leftWidth := lipgloss.Width(leftPart)
+			if leftWidth < startCol {
+				leftPart += strings.Repeat(" ", startCol-leftWidth)
+			}
+
+			baseLines[row] = leftPart + modalLine + rightPart
+		}
+	}
+
+	return strings.Join(baseLines, "\n")
 }
