@@ -13,7 +13,7 @@ import (
 // Returns UserInfo or an error if the request fails
 func (c *Client) GetUserInfo() (*UserInfo, error) {
 	// Make a GET request to /user endpoint
-	body, err := c.get("/user")
+	body, err := c.Get("/user")
 	if err != nil {
 		return nil, err
 	}

@@ -66,7 +66,7 @@ func (m SidebarModel) Update(msg tea.Msg) (SidebarModel, tea.Cmd) {
 				switch m.SelectedItem() {
 				case "Dashboard":
 					view = clockify.ViewDashboard
-				case "Time Entry":
+				case "Time Entries":
 					view = clockify.ViewTimeList
 				case "Reports":
 					view = clockify.ViewSettings

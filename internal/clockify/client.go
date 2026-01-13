@@ -79,11 +79,11 @@ func (c *Client) doRequest(method, endpoint string, body interface{}) ([]byte, e
 }
 
 // get performs a GET request - convenience wrapper around doRequest
-func (c *Client) get(endpoint string) ([]byte, error) {
+func (c *Client) Get(endpoint string) ([]byte, error) {
 	return c.doRequest("GET", endpoint, nil)
 }
 
 // post performs a POST request - convenience wrapper around doRequest
-func (c *Client) post(endpoint string, body interface{}) ([]byte, error) {
+func (c *Client) Post(endpoint string, body interface{}) ([]byte, error) {
 	return c.doRequest("POST", endpoint, body)
 }

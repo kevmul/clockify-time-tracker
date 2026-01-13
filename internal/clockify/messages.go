@@ -8,6 +8,9 @@ type ErrMsg error
 
 type ProjectsMsg []Project
 type TasksMsg []string
+type EntriesMsg struct {
+	Entries []Entry
+}
 type UserInfoMsg struct {
 	WorkspaceID string
 	UserID      string

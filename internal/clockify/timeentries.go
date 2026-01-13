@@ -27,7 +27,7 @@ func (c *Client) CreateTimeEntry(workspaceID, projectID, description, timeRange 
 
 	// Build endpoint and make POST request
 	endpoint := fmt.Sprintf("/workspaces/%s/time-entries", workspaceID)
-	_, err = c.post(endpoint, entry)
+	_, err = c.Post(endpoint, entry)
 	if err != nil {
 		return fmt.Errorf("failed to create time entry: %w", err)
 	}
@@ -42,7 +42,7 @@ func (c *Client) GetTasks(workspaceID, userID string) ([]string, error) {
 	endpoint := fmt.Sprintf("/workspaces/%s/user/%s/time-entries", workspaceID, userID)
 
 	// Make GET request
-	body, err := c.get(endpoint)
+	body, err := c.Get(endpoint)
 	if err != nil {
 		return nil, err
 	}

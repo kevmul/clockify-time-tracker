@@ -39,10 +39,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		// We will remove this for Msg in the future.
-		case "ctrl+c", "q":
-			m.quitting = true
-			return m, tea.Quit
+		// case "ctrl+c", "q":
+		// 	m.quitting = true
+		// 	return m, tea.Quit
 		case "tab": // We can change this later
 			if m.focusedPane == "sidebar" {
 				m.focusedPane = "content"

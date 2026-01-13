@@ -6,6 +6,7 @@ import (
 	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/ui/views/dashboard"
 	timeentry "clockify-time-tracker/internal/ui/views/timeform"
+	"clockify-time-tracker/internal/ui/views/timelist"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,8 +17,8 @@ type RouterModel struct {
 
 	// Each view has its own component
 	dashboard dashboard.Model
+	timeList  timelist.Model
 	timeEntry timeentry.Model
-	// dashboard dashboard.Model
 	// projects projects.Model
 }
 
@@ -27,8 +28,10 @@ func (m RouterModel) View() string {
 	switch m.currentView {
 	case clockify.ViewDashboard:
 		content = m.dashboard.View()
-	case clockify.ViewTimeList:
+	case clockify.ViewTimeEntry:
 		content = m.timeEntry.View()
+	case clockify.ViewTimeList:
+		content = m.timeList.View()
 	default:
 		content = fmt.Sprintf("View not found: %s", m.currentView)
 	}
@@ -40,6 +43,7 @@ func NewRouter(cfg *config.Config) RouterModel {
 	return RouterModel{
 		currentView: clockify.ViewDashboard,
 		timeEntry:   timeentry.New(cfg),
+		timeList:    timelist.New(cfg),
 	}
 }
 
@@ -68,8 +72,11 @@ func (m RouterModel) Update(msg tea.Msg) (RouterModel, tea.Cmd) {
 	switch m.currentView {
 	case clockify.ViewDashboard:
 		return m, nil
-	case clockify.ViewTimeList:
+	case clockify.ViewTimeEntry:
 		m.timeEntry, cmd = m.timeEntry.Update(msg)
+		return m, cmd
+	case clockify.ViewTimeList:
+		m.timeList, cmd = m.timeList.Update(msg)
 		return m, cmd
 	}
 
@@ -82,8 +89,10 @@ func (m RouterModel) initCurrentView() tea.Cmd {
 	case clockify.ViewDashboard:
 		return nil
 		// return m.dashboard.Init()
-	case clockify.ViewTimeList:
+	case clockify.ViewTimeEntry:
 		return m.timeEntry.Init()
+	case clockify.ViewTimeList:
+		return m.timeList.Init()
 	default:
 		return nil
 	}

@@ -13,7 +13,7 @@ func (c *Client) GetProjects(workspaceID string) ([]Project, error) {
 	endpoint := fmt.Sprintf("/workspaces/%s/projects", workspaceID)
 
 	// Make the GET request
-	body, err := c.get(endpoint)
+	body, err := c.Get(endpoint)
 	if err != nil {
 		return nil, err
 	}
