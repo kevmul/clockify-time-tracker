@@ -6,7 +6,6 @@ import (
 	"clockify-time-tracker/internal/ui/components/dialog"
 	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/ui/views/timeform"
-	debug "clockify-time-tracker/internal/utils"
 	"fmt"
 	"os"
 	"strings"
@@ -53,6 +52,7 @@ func New(config *config.Config) Model {
 		helpModal: dialog.NewModal("Keyboard Shortcuts"),
 
 		timeEntryModal: dialog.NewModal("Create a New Time Entry"),
+		timeEntryForm:  timeform.New(config),
 	}
 }
 
@@ -82,13 +82,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if m.timeEntryModal.Visible {
-			debug.Log("Time Entry Modal is Visible")
 			switch msg.String() {
 			case "esc":
 				m.timeEntryModal.Hide()
 				return m, nil
 			default:
-				return m, nil
+				// Pass all keys to the form
+				m.timeEntryForm, cmd = m.timeEntryForm.Update(msg)
+
+				m.timeEntryForm.Init()
+
+				// Update the modal content with the form
+				m.timeEntryModal.Content = m.timeEntryForm.View()
+
+				return m, cmd
 			}
 		}
 
@@ -126,6 +133,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmds...)
 
 	case clockify.CreateOrEditEntryMsg:
+		if msg.Type == clockify.Edit {
+			m.timeEntryModal = dialog.NewModal("Editing time stamp")
+		}
 		m.timeEntryModal.Show(m.timeEntryForm.View())
 		m.timeEntryForm, cmd = m.timeEntryForm.Update(msg)
 		cmds = append(cmds, cmd)
