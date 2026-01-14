@@ -90,12 +90,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Pass all keys to the form
 				m.timeEntryForm, cmd = m.timeEntryForm.Update(msg)
 
-				m.timeEntryForm.Init()
-
 				// Update the modal content with the form
 				m.timeEntryModal.Content = m.timeEntryForm.View()
 
-				return m, cmd
+				cmds = append(cmds, cmd)
+
+				return m, tea.Batch(cmds...)
 			}
 		}
 
@@ -133,14 +133,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmds...)
 
 	case clockify.CreateOrEditEntryMsg:
-		if msg.Type == clockify.Edit {
-			m.timeEntryModal = dialog.NewModal("Editing time stamp")
-		}
 		m.timeEntryModal.Show(m.timeEntryForm.View())
-		m.timeEntryForm, cmd = m.timeEntryForm.Update(msg)
-		cmds = append(cmds, cmd)
-
-		return m, tea.Batch(cmds...)
+		return m, nil
 
 	case clockify.QuittingAppMsg:
 		m.quitting = true

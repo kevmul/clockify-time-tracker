@@ -31,6 +31,7 @@ func (m Model) View() string {
 	case stepDateSelect:
 		s += m.renderDateSelect()
 	case stepProjectSelect:
+		s += fmt.Sprintf("Projects: %d\n", len(m.projects))
 		s += m.renderProjectSelect()
 	case stepTimeInput:
 		s += m.renderTimeInput()
@@ -41,7 +42,6 @@ func (m Model) View() string {
 	}
 
 	return s
-	// return mainContentStyle.Render(s)
 }
 
 // renderDateSelect shows the date selection screen
@@ -55,7 +55,7 @@ func (m Model) renderDateSelect() string {
 // renderProjectSelect shows the project selection list
 func (m Model) renderProjectSelect() string {
 	// If no projects loaded yet, show loading message
-	if m.loading {
+	if m.loading || len(m.projects) == 0 {
 		str := fmt.Sprintf("%s Loading...", m.spinner.View())
 		return str
 	}

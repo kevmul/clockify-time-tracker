@@ -4,6 +4,7 @@ package timeform
 
 import (
 	"clockify-time-tracker/internal/clockify"
+	debug "clockify-time-tracker/internal/utils"
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -59,6 +60,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	}
 
 	// Check what type of message we received
+
 	switch msg := msg.(type) {
 
 	// Keyboard input from the user
@@ -67,31 +69,35 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	// User info was fetched successfully
 	case clockify.UserInfoMsg:
+		debug.Log("UserInfoMsg Received")
 		m.workspaceID = msg.WorkspaceID
 		m.userID = msg.UserID
 		// Now fetch projects and tasks in parallel using tea.Batch
-		return m, func() tea.Msg {
+		cmds = append(cmds, func() tea.Msg {
 			return clockify.SetLoadingMsg{}
-		}
+		})
+
+		return m, tea.Batch(cmds...)
 
 		// Start loading the data
 	case clockify.SetLoadingMsg:
 		m.loading = true
-		return m, tea.Batch(
+		cmds = append(cmds,
 			fetchProjects(m.apiKey, m.workspaceID),
 			fetchTasks(m.apiKey, m.workspaceID, m.userID),
 		)
+		return m, tea.Batch(cmds...)
 
 	// Projects were fetched successfully
 	case clockify.ProjectsMsg:
 		m.loading = false
 		m.projects = msg
-		return m, nil
+		return m, tea.Batch(cmds...)
 
 	// Tasks were fetched successfully
 	case clockify.TasksMsg:
 		m.tasks = msg
-		return m, nil
+		return m, tea.Batch(cmds...)
 
 	// An error occurred
 	case clockify.ErrMsg:
@@ -109,7 +115,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m, nil
 
 	default:
-		return m, cmd
+		return m, tea.Batch(cmds...)
 	}
 }
 
