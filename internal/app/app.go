@@ -5,6 +5,8 @@ import (
 	"clockify-time-tracker/internal/config"
 	"clockify-time-tracker/internal/ui/components/dialog"
 	"clockify-time-tracker/internal/ui/styles"
+	"clockify-time-tracker/internal/ui/views/timeform"
+	debug "clockify-time-tracker/internal/utils"
 	"fmt"
 	"os"
 	"strings"
@@ -26,6 +28,10 @@ type Model struct {
 	keys      KeyMap
 	helpModal dialog.Modal
 
+	// Time entry Modal
+	timeEntryModal dialog.Modal
+	timeEntryForm  timeform.Model
+
 	focusedPane string // "sidebar" or "content"
 	quitting    bool
 }
@@ -45,6 +51,8 @@ func New(config *config.Config) Model {
 
 		keys:      keys,
 		helpModal: dialog.NewModal("Keyboard Shortcuts"),
+
+		timeEntryModal: dialog.NewModal("Create a New Time Entry"),
 	}
 }
 
@@ -71,6 +79,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			return m, nil
+		}
+
+		if m.timeEntryModal.Visible {
+			debug.Log("Time Entry Modal is Visible")
+			switch msg.String() {
+			case "esc":
+				m.timeEntryModal.Hide()
+				return m, nil
+			default:
+				return m, nil
+			}
 		}
 
 		switch {
@@ -105,6 +124,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusedPane = "content"
 		}
 		return m, tea.Batch(cmds...)
+
+	case clockify.CreateOrEditEntryMsg:
+		m.timeEntryModal.Show(m.timeEntryForm.View())
+		m.timeEntryForm, cmd = m.timeEntryForm.Update(msg)
+		cmds = append(cmds, cmd)
+
+		return m, tea.Batch(cmds...)
+
 	case clockify.QuittingAppMsg:
 		m.quitting = true
 		return m, tea.Quit
@@ -172,13 +199,17 @@ func (m Model) View() string {
 	help := fmt.Sprintf("\nFocused %s | [Tab] to switch focus | [Esc] to return to Sidebar | [q] to quit", m.focusedPane)
 
 	if m.helpModal.Visible {
-		return m.renderWithModal(app + help)
+		return m.renderWithModal(app+help, m.helpModal)
+	}
+
+	if m.timeEntryModal.Visible {
+		return m.renderWithModal(app+help, m.timeEntryModal)
 	}
 
 	return app + help
 }
 
-func (m Model) renderWithModal(baseContent string) string {
+func (m Model) renderWithModal(baseContent string, modal dialog.Modal) string {
 	// Split base content into lines
 	baseLines := strings.Split(baseContent, "\n")
 
@@ -188,7 +219,7 @@ func (m Model) renderWithModal(baseContent string) string {
 	}
 
 	// Render the modal
-	modalContent := m.helpModal.View(m.width, m.height)
+	modalContent := modal.View(m.width, m.height)
 	modalLines := strings.Split(modalContent, "\n")
 
 	// Calculate starting position to center the modal

@@ -4,6 +4,7 @@ import (
 	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/config"
 	"clockify-time-tracker/internal/ui/styles"
+	"clockify-time-tracker/internal/ui/views/timeform"
 	"encoding/json"
 	"fmt"
 
@@ -13,13 +14,14 @@ import (
 )
 
 type Model struct {
-	apiKey      string
-	cursor      int
-	entries     []clockify.Entry
-	userID      string
-	workspaceID string
-	loading     bool
-	spinner     spinner.Model
+	apiKey        string
+	cursor        int
+	entries       []clockify.Entry
+	userID        string
+	workspaceID   string
+	loading       bool
+	spinner       spinner.Model
+	timeEntryForm timeform.Model
 }
 
 func New(cfg *config.Config) Model {
@@ -28,10 +30,11 @@ func New(cfg *config.Config) Model {
 	s.Style = lipgloss.NewStyle().Foreground(styles.ColorPrimary)
 
 	return Model{
-		cursor:  0,
-		apiKey:  cfg.APIKey,
-		loading: false,
-		spinner: s,
+		cursor:        0,
+		apiKey:        cfg.APIKey,
+		loading:       false,
+		spinner:       s,
+		timeEntryForm: timeform.New(cfg),
 	}
 }
 
@@ -74,6 +77,16 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			if m.cursor < len(m.entries)-1 {
 				m.cursor++
 			}
+
+		case "n":
+			return m, tea.Batch(
+				m.timeEntryForm.Init(),
+				func() tea.Msg {
+					return clockify.CreateOrEditEntryMsg{
+						Type: clockify.Create,
+					}
+				},
+			)
 		}
 
 	// Handle messages

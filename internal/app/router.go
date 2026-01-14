@@ -36,10 +36,7 @@ func (m RouterModel) View() string {
 		content = fmt.Sprintf("View not found: %s", m.currentView)
 	}
 
-	// width, height, _ := term.GetSize(os.Stdout.Fd())
-
 	return content
-	// return mainContentStyle.Render(content)
 }
 
 func NewRouter(cfg *config.Config) RouterModel {

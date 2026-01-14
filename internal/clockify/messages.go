@@ -7,16 +7,31 @@ type NavigationMsg struct {
 type ErrMsg error
 
 type ProjectsMsg []Project
-type TasksMsg []string
-type EntriesMsg struct {
-	Entries []Entry
-}
 type UserInfoMsg struct {
 	WorkspaceID string
 	UserID      string
 }
-type SubmitSuccessMsg struct{}
 
 type SetLoadingMsg struct{}
 
 type QuittingAppMsg struct{}
+
+// Time Entries
+type SubmitSuccessMsg struct{}
+type EntriesMsg struct {
+	Entries []Entry
+}
+
+type CreateOrEdit int
+
+const (
+	Create CreateOrEdit = iota
+	Edit
+)
+
+type CreateOrEditEntryMsg struct {
+	Type CreateOrEdit
+}
+
+// Tasks
+type TasksMsg []string
