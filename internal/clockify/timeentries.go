@@ -2,6 +2,7 @@
 package clockify
 
 import (
+	debug "clockify-time-tracker/internal/utils"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -24,6 +25,8 @@ func (c *Client) CreateTimeEntry(workspaceID, projectID, description, timeRange 
 		ProjectID:   projectID,
 		Description: description,
 	}
+
+	debug.Log("Creating time entry: %+v", entry)
 
 	// Build endpoint and make POST request
 	endpoint := fmt.Sprintf("/workspaces/%s/time-entries", workspaceID)

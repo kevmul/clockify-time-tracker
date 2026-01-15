@@ -4,7 +4,6 @@ import (
 	"clockify-time-tracker/internal/clockify"
 	"clockify-time-tracker/internal/config"
 	"clockify-time-tracker/internal/ui/styles"
-	debug "clockify-time-tracker/internal/utils"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -93,7 +92,6 @@ func New(config *config.Config) Model {
 // This is part of the Bubble Tea architecture - Init returns initial commands to run
 func (m Model) Init() tea.Cmd {
 	// Fetch user info (workspace ID and user ID) as our first action
-	debug.Log("TimeForm INIT")
 	return tea.Batch(
 		m.spinner.Tick,
 		fetchUserInfo(m.apiKey),

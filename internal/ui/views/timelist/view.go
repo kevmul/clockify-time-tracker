@@ -46,10 +46,10 @@ func (m Model) View() string {
 		startTime := entry.TimeInterval.Start
 		endTime := entry.TimeInterval.End
 		if sterr == nil {
-			startTime = st.Format("3:04 PM")
+			startTime = st.In(time.Local).Format("3:04 PM")
 		}
 		if eterr == nil {
-			endTime = et.Format("3:04 PM")
+			endTime = et.In(time.Local).Format("3:04 PM")
 		}
 
 		displayName := fmt.Sprintf("%s (%s - %s)", entry.Description, startTime, endTime)

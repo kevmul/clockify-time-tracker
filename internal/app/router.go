@@ -29,7 +29,7 @@ func (m RouterModel) View() string {
 	case clockify.ViewTimeList:
 		content = m.timeList.View()
 	default:
-		content = fmt.Sprintf("View not found: %s", m.currentView)
+		content = fmt.Sprintf("View not found: %v", m.currentView)
 	}
 
 	return content
@@ -82,7 +82,10 @@ func (m RouterModel) initCurrentView() tea.Cmd {
 		return nil
 		// return m.dashboard.Init()
 	case clockify.ViewTimeList:
-		return m.timeList.Init()
+
+		return tea.Batch(
+			m.timeList.Init(),
+		)
 	default:
 		return nil
 	}

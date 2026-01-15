@@ -6,6 +6,7 @@ import (
 	"clockify-time-tracker/internal/ui/components/dialog"
 	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/ui/views/timeform"
+	// debug "clockify-time-tracker/internal/utils"
 	"fmt"
 	"os"
 	"strings"
@@ -71,7 +72,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
-
 		if m.helpModal.Visible {
 			switch msg.String() {
 			case "esc", "?":
@@ -86,16 +86,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "esc":
 				m.timeEntryModal.Hide()
 				return m, nil
-			default:
-				// Pass all keys to the form
-				m.timeEntryForm, cmd = m.timeEntryForm.Update(msg)
-
-				// Update the modal content with the form
-				m.timeEntryModal.Content = m.timeEntryForm.View()
-
-				cmds = append(cmds, cmd)
-
-				return m, tea.Batch(cmds...)
 			}
 		}
 
@@ -121,6 +111,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.focusedPane = "sidebar"
 			return m, nil
 		}
+
+	// Handle other message types
 	case clockify.NavigationMsg:
 		// Handle the navigation by sending to router
 		var cmd tea.Cmd
@@ -133,12 +125,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmds...)
 
 	case clockify.CreateOrEditEntryMsg:
+		cmd = m.timeEntryForm.Init()
 		m.timeEntryModal.Show(m.timeEntryForm.View())
-		return m, nil
+		cmds = append(cmds, cmd)
+		return m, tea.Batch(cmds...)
 
 	case clockify.QuittingAppMsg:
 		m.quitting = true
 		return m, tea.Quit
+
+	}
+
+	if m.timeEntryModal.Visible {
+		// Pass all keys to the form
+		m.timeEntryForm, cmd = m.timeEntryForm.Update(msg)
+		// Update the modal content with the form
+		m.timeEntryModal.Content = m.timeEntryForm.View()
+		cmds = append(cmds, cmd)
+		return m, tea.Batch(cmds...)
 	}
 
 	// Route UI messages based on focus

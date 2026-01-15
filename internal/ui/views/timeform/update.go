@@ -108,11 +108,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case clockify.SubmitSuccessMsg:
 		m.success = true
 		m.step = stepComplete
-		return m, tea.Quit // Quit after success
+		return m, func() tea.Msg { return clockify.NavigationMsg{View: clockify.ViewTimeEntry} }
 
 	// Window was resized (we don't handle this yet)
 	case tea.WindowSizeMsg:
-		return m, nil
+		return m, tea.Batch(cmds...)
 
 	default:
 		return m, tea.Batch(cmds...)

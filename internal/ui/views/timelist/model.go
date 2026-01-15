@@ -5,6 +5,7 @@ import (
 	"clockify-time-tracker/internal/config"
 	"clockify-time-tracker/internal/ui/styles"
 	"clockify-time-tracker/internal/ui/views/timeform"
+	debug "clockify-time-tracker/internal/utils"
 	"encoding/json"
 	"fmt"
 
@@ -39,9 +40,7 @@ func New(cfg *config.Config) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	if len(m.entries) > 0 {
-		return nil
-	}
+	m.Reset()
 
 	return tea.Batch(
 		m.spinner.Tick,
@@ -79,14 +78,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			}
 
 		case "n":
-			return m, tea.Batch(
-				m.timeEntryForm.Init(),
-				func() tea.Msg {
-					return clockify.CreateOrEditEntryMsg{
-						Type: clockify.Create,
-					}
-				},
-			)
+			return m, func() tea.Msg {
+				return clockify.CreateOrEditEntryMsg{
+					Type: clockify.Create,
+				}
+			}
 		}
 
 	// Handle messages
@@ -164,4 +160,10 @@ func (m Model) getEntries() tea.Msg {
 	return clockify.EntriesMsg{
 		Entries: entries,
 	}
+}
+
+func (m Model) Reset() Model {
+	debug.Log("Resetting TimeList Model")
+	m.entries = nil
+	return m
 }
