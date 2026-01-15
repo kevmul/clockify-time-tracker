@@ -30,6 +30,18 @@ var (
 			Foreground(ColorPrimary). // Purple color
 			Bold(true)
 
+	SelectedListStyle = lipgloss.NewStyle().
+				Foreground(ColorPrimary). // Purple color
+				Bold(true)
+		// Padding(0, 1, 1)
+
+	NormalListStyle = lipgloss.NewStyle().
+			Foreground(ColorMuted) // Purple color
+		// Padding(0, 1, 1)
+
+	NormalStyle = lipgloss.NewStyle().
+			Foreground(ColorMuted) // Muted gray color
+
 	// errorStyle is used for error messages
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(ColorError). // Red color

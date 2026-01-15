@@ -18,6 +18,7 @@ type Model struct {
 	apiKey        string
 	cursor        int
 	entries       []clockify.Entry
+	projects      []clockify.Project
 	userID        string
 	workspaceID   string
 	loading       bool
@@ -95,12 +96,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	case clockify.SetLoadingMsg:
 		m.loading = true
-		cmds = append(cmds, m.getEntries)
+		cmds = append(
+			cmds,
+			m.getEntries,
+			func() tea.Msg { return m.fetchProjects },
+		)
 
 	case clockify.EntriesMsg:
 		// time.Sleep(2 * time.Second)
 		m.loading = false
 		m.entries = msg.Entries
+		m.projects = msg.Projects
 	}
 
 	return m, tea.Batch(cmds...)
@@ -157,8 +163,14 @@ func (m Model) getEntries() tea.Msg {
 		return clockify.ErrMsg(err)
 	}
 
+	projects, perr := m.fetchProjects()
+	if perr != nil {
+		return clockify.ErrMsg(perr)
+	}
+
 	return clockify.EntriesMsg{
-		Entries: entries,
+		Entries:  entries,
+		Projects: projects,
 	}
 }
 
@@ -166,4 +178,19 @@ func (m Model) Reset() Model {
 	debug.Log("Resetting TimeList Model")
 	m.entries = nil
 	return m
+}
+
+// fetchProjects returns a command that fetches all projects
+// When complete, it sends a projectsMsg back to Update()
+func (m Model) fetchProjects() ([]clockify.Project, error) {
+	client := clockify.NewClient(m.apiKey)
+	projects, err := client.GetProjects(m.workspaceID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Wrap the projects slice in projectsMsg type
+	// This is crucial - it converts []api.Project to projectsMsg
+	return projects, nil
 }

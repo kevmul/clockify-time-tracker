@@ -19,7 +19,8 @@ type QuittingAppMsg struct{}
 // Time Entries
 type SubmitSuccessMsg struct{}
 type EntriesMsg struct {
-	Entries []Entry
+	Entries  []Entry
+	Projects []Project
 }
 
 type CreateOrEdit int

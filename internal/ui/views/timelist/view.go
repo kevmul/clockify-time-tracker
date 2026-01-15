@@ -13,7 +13,7 @@ func (m Model) View() string {
 		s += fmt.Sprintf("%s Loading...", m.spinner.View())
 	}
 
-	const visibleItems = 10
+	const visibleItems = 5
 	start := 0
 	end := len(m.entries)
 
@@ -36,6 +36,8 @@ func (m Model) View() string {
 
 		if start > 0 {
 			s += fmt.Sprintf(" ↑ %d more above...\n", start)
+		} else {
+			s += "\n" // Make space for "More Above" indicator
 		}
 	}
 
@@ -46,23 +48,38 @@ func (m Model) View() string {
 		startTime := entry.TimeInterval.Start
 		endTime := entry.TimeInterval.End
 		if sterr == nil {
-			startTime = st.In(time.Local).Format("3:04 PM")
+			startTime = st.In(time.Local).Format("3:04PM")
 		}
 		if eterr == nil {
-			endTime = et.In(time.Local).Format("3:04 PM")
+			endTime = et.In(time.Local).Format("3:04PM")
 		}
 
-		displayName := fmt.Sprintf("%s (%s - %s)", entry.Description, startTime, endTime)
+		description := entry.Description
+		if description == "" {
+			description = "??"
+		}
+
+		projectName := "No Project"
+		for _, proj := range m.projects {
+			if proj.ID == entry.ProjectId {
+				projectName = fmt.Sprintf("%s (%s)", proj.Name, proj.ClientName)
+				break
+			}
+		}
+
+		displayTime := fmt.Sprintf("%s\n  %s (%s - %s)", projectName, description, startTime, endTime)
 
 		if m.cursor == i {
-			s += styles.SelectedStyle.Render(fmt.Sprintf("» %s", displayName)) + "\n"
+			s += styles.SelectedListStyle.Width(60).Render(fmt.Sprintf("» %s", displayTime)) + "\n"
 		} else {
-			s += styles.SelectedStyle.Render(fmt.Sprintf("  %s", displayName)) + "\n"
+			s += styles.NormalListStyle.Width(60).Render(fmt.Sprintf("  %s", displayTime)) + "\n"
 		}
 	}
 
 	if len(m.entries) > visibleItems && end < len(m.entries) {
 		s += fmt.Sprintf("  ↓ %d more below...\n", len(m.entries)-end)
+	} else {
+		s += "\n"
 	}
 
 	return s
